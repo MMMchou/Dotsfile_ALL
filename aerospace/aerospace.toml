@@ -1,0 +1,205 @@
+# ============================================================
+# AeroSpace 平铺窗口管理器配置
+# 配置文件位置：~/.config/aerospace/aerospace.toml
+#
+# AeroSpace 是 macOS 上类似 i3wm 的平铺窗口管理器。
+# 它会自动把你的窗口排列整齐，不用手动拖来拖去。
+#
+# 官方文档：https://nikitabobko.github.io/AeroSpace/guide.html
+# ============================================================
+#
+# 【本文件内容索引】
+#  1) 基础设置        — 启动登录、布局模式
+#  2) 间距设置        — 窗口之间的间隔
+#  3) 核心快捷键      — Alt+hjkl 导航、Alt+数字切换桌面
+#  4) 窗口移动        — Alt+Shift 移动窗口到其他位置/桌面
+#  5) 窗口大小调整    — Alt+Shift+加减号
+#  6) 布局切换        — 平铺/堆叠/浮动
+#  7) 服务模式        — Alt+Shift+分号 进入，执行高级操作
+#  8) App 自动归位    — 指定 App 自动出现在哪个桌面
+#
+# 【快捷键速查】
+# Alt + h/j/k/l        在窗口间移动焦点（左/下/上/右）
+# Alt + Shift + h/j/k/l 把当前窗口移到左/下/上/右
+# Alt + 1-9             切换到桌面 1-9
+# Alt + Shift + 1-9     把当前窗口发送到桌面 1-9
+# Alt + Enter           打开新终端（Alacritty）
+# Alt + f               切换当前窗口全屏
+# Alt + t               平铺布局（tiles）
+# Alt + s               堆叠布局（accordion）
+# Alt + Shift + Space   切换浮动/平铺
+# Alt + Shift + r       重载配置
+# Alt + Shift + 分号    进入服务模式（按 Esc 退出）
+# ============================================================
+
+# ---------- 1) 基础设置 ----------
+
+# 开机自动启动 AeroSpace
+start-at-login = true
+
+# 在焦点切换后，鼠标自动移到被聚焦的窗口中心（方便多显示器）
+on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+
+# 默认布局：tiles = 平铺（窗口并排显示）
+default-root-container-layout = 'tiles'
+
+# 默认方向：auto = 宽屏横排、竖屏竖排
+default-root-container-orientation = 'auto'
+
+# 堆叠模式下窗口之间的内边距
+accordion-padding = 20
+
+# ---------- 2) 间距设置 ----------
+# 窗口之间以及窗口与屏幕边缘的间隔（像素）
+# 你可以根据自己的审美调整这些数字
+
+[gaps]
+inner.horizontal = 12
+inner.vertical = 12
+outer.left = 12
+outer.right = 12
+outer.top = 12
+outer.bottom = 12
+
+# ---------- 3) 核心快捷键 ----------
+
+# 在窗口间移动焦点（Alt + h/j/k/l，与 Vim/tmux 一致）
+[mode.main.binding]
+alt-h = 'focus left'
+alt-j = 'focus down'
+alt-k = 'focus up'
+alt-l = 'focus right'
+
+# 切换到桌面 1-9（Alt + 数字）
+alt-1 = 'workspace 1'
+alt-2 = 'workspace 2'
+alt-3 = 'workspace 3'
+alt-4 = 'workspace 4'
+alt-5 = 'workspace 5'
+alt-6 = 'workspace 6'
+alt-7 = 'workspace 7'
+alt-8 = 'workspace 8'
+alt-9 = 'workspace 9'
+
+# 打开终端（Alt + Enter）
+alt-enter = 'exec-and-forget open -na Alacritty'
+
+# 切换当前窗口全屏（Alt + f）
+alt-f = 'fullscreen'
+
+# 布局切换
+alt-t = 'layout tiles horizontal vertical'  # 平铺（横/竖自动切换）
+alt-s = 'layout accordion horizontal vertical'  # 堆叠模式
+
+# 切换浮动/平铺（Alt + Shift + Space）
+alt-shift-space = 'layout floating tiling'
+
+# ---------- 4) 窗口移动 ----------
+
+# 把当前窗口移到 左/下/上/右（Alt + Shift + h/j/k/l）
+alt-shift-h = 'move left'
+alt-shift-j = 'move down'
+alt-shift-k = 'move up'
+alt-shift-l = 'move right'
+
+# 把当前窗口发送到桌面 1-9（Alt + Shift + 数字）
+alt-shift-1 = 'move-node-to-workspace 1'
+alt-shift-2 = 'move-node-to-workspace 2'
+alt-shift-3 = 'move-node-to-workspace 3'
+alt-shift-4 = 'move-node-to-workspace 4'
+alt-shift-5 = 'move-node-to-workspace 5'
+alt-shift-6 = 'move-node-to-workspace 6'
+alt-shift-7 = 'move-node-to-workspace 7'
+alt-shift-8 = 'move-node-to-workspace 8'
+alt-shift-9 = 'move-node-to-workspace 9'
+
+# ---------- 5) 窗口大小调整 ----------
+
+# Alt + 减号/等号 缩小/放大当前窗口
+alt-minus = 'resize smart -50'
+alt-equal = 'resize smart +50'
+
+# ---------- 6) 服务模式 ----------
+# Alt + Shift + 分号 进入服务模式（用于高级操作）
+# 按 Esc 或 Enter 退出服务模式
+
+alt-shift-semicolon = 'mode service'
+
+# 重载配置（Alt + Shift + r）
+alt-shift-r = 'reload-config'
+
+# 关闭当前窗口（Alt + Shift + q）
+alt-shift-q = 'close'
+
+[mode.service.binding]
+# 服务模式下可用的命令
+r = ['reload-config', 'mode main']           # 重载配置并退出
+f = ['layout floating tiling', 'mode main']  # 切换浮动
+backspace = ['close-all-windows-but-current', 'mode main']
+# 按 Esc 退出服务模式
+esc = 'mode main'
+
+# 在服务模式下也可以用 hjkl 来 join（合并窗口到同一容器）
+alt-shift-h = ['join-with left', 'mode main']
+alt-shift-j = ['join-with down', 'mode main']
+alt-shift-k = ['join-with up', 'mode main']
+alt-shift-l = ['join-with right', 'mode main']
+
+# ---------- 8) App 自动归位规则 ----------
+# 指定某些 App 打开时自动出现在特定桌面
+# 你可以根据自己的习惯修改
+#
+# 桌面分配建议：
+#   1 = 终端（Alacritty / Terminal / iTerm2）
+#   2 = 浏览器（Safari / Chrome / Arc）
+#   3 = 编辑器（Cursor / VS Code）
+#   4 = 通讯（微信 / Telegram / Slack）
+#   5 = 其他
+
+[[on-window-detected]]
+if.app-id = 'org.alacritty'
+run = 'move-node-to-workspace 1'
+
+[[on-window-detected]]
+if.app-id = 'io.alacritty'
+run = 'move-node-to-workspace 1'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.Terminal'
+run = 'move-node-to-workspace 1'
+
+[[on-window-detected]]
+if.app-id = 'com.googlecode.iterm2'
+run = 'move-node-to-workspace 1'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.Safari'
+run = 'move-node-to-workspace 2'
+
+[[on-window-detected]]
+if.app-id = 'com.google.Chrome'
+run = 'move-node-to-workspace 2'
+
+[[on-window-detected]]
+if.app-id = 'company.thebrowser.Browser'
+run = 'move-node-to-workspace 2'
+
+[[on-window-detected]]
+if.app-id = 'com.todesktop.230313mzl4w4u92'
+run = 'move-node-to-workspace 3'
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.VSCode'
+run = 'move-node-to-workspace 3'
+
+[[on-window-detected]]
+if.app-id = 'com.tencent.xinWeChat'
+run = 'move-node-to-workspace 4'
+
+[[on-window-detected]]
+if.app-id = 'ru.keepcoder.Telegram'
+run = 'move-node-to-workspace 4'
+
+[[on-window-detected]]
+if.app-id = 'com.tinyspeck.slackmacgap'
+run = 'move-node-to-workspace 4'

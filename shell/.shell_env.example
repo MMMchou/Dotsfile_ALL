@@ -1,0 +1,11 @@
+# Shared shell environment (loaded by both bash and zsh)
+# 复制此文件为 ~/.shell_env 并填入你的真实值：
+#   cp shell/.shell_env.example ~/.shell_env
+
+# Claude Code custom API settings
+export ANTHROPIC_API_KEY="your-api-key-here"
+export ANTHROPIC_AUTH_TOKEN="your-api-key-here"
+export ANTHROPIC_BASE_URL="https://your-api-endpoint.com"
+export ANTHROPIC_MODEL="your-model-name"
+export ANTHROPIC_DEFAULT_OPUS_MODEL="your-model-name"
+export CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1

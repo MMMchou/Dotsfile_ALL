@@ -1,0 +1,22 @@
+# 含密钥/敏感信息的文件（绝对不上传）
+shell/.shell_env
+
+# nvim 插件锁定文件（每台机器不同）
+nvim/lazy-lock.json
+
+# nvim 插件目录（由 lazy.nvim 自动管理）
+nvim/plugin/
+
+# LazyVim 的 LICENSE 和 README（来自 starter 模板，不需要）
+nvim/LICENSE
+nvim/README.md
+
+# macOS 系统文件
+.DS_Store
+**/.DS_Store
+
+# SSH 私钥（防止误操作）
+ssh/id_*
+ssh/*.pem
+ssh/known_hosts
+ssh/sockets/
