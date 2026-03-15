@@ -1,0 +1,53 @@
+# ============================================================
+# Alacritty 终端配置
+# 配置文件位置：~/.config/alacritty/alacritty.toml
+# 官方文档：https://alacritty.org/config-alacritty.html
+# ============================================================
+
+# ---------- 关键设置 ----------
+# Mac 的 Option 键默认会输入特殊字符（如 ∆ ˚ ¬）
+# 改成 "Alt" 后，Option 键才能被 tmux / AeroSpace / Neovim 识别为 Alt 键
+# 这是你按 Option+h/j/k/l 没反应的根本原因！
+
+[window]
+# ★ 最关键的一行 ★
+# 把 Option 键从"输入特殊字符"改成"发送 Alt 信号"
+# 设为 "Both" = 左右两个 Option 键都当 Alt 用
+# 这样 Option+h/j/k/l 才能被 tmux / Neovim 识别
+option_as_alt = "Both"
+
+# 窗口默认大小（列 x 行）
+columns = 120
+lines = 36
+
+# 窗口内边距（像素）
+padding.x = 8
+padding.y = 8
+
+# 窗口装饰（标题栏样式）
+decorations = "Buttonless"
+
+# 启动时最大化
+startup_mode = "Maximized"
+
+# 背景透明度（1.0 = 完全不透明，0.8 = 微透明）
+opacity = 0.95
+
+[font]
+# 字体大小
+size = 14.0
+
+# 如果你装了 Nerd Font，取消下面的注释（解决图标显示方块的问题）
+# [font.normal]
+# family = "JetBrainsMono Nerd Font"
+# style = "Regular"
+
+[keyboard]
+# Cmd+N 新建窗口
+bindings = [
+  { key = "N", mods = "Command", action = "CreateNewWindow" },
+]
+
+[terminal]
+# 让 shell 以登录 shell 方式启动（自动加载 .bash_profile / .zshrc）
+shell = { program = "/opt/homebrew/bin/bash", args = ["--login"] }

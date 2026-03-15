@@ -3,11 +3,15 @@
 > 本教程面向完全没用过 tmux / Neovim / AeroSpace / OrbStack / SSH 的新手。
 > 每一步都有完整操作和预期结果，建议你边看边跟着做。
 > 快捷键速查请看 README.md。
+>
+> **Mac 用户注意：本教程中所有写 "Alt" 的地方，就是你键盘上的 Option 键（⌥）。**
+> 如果按 Option+h/j/k/l 没反应，请先完成"第零课"。
 
 ---
 
 ## 目录
 
+0. [第零课：让 Option 键正常工作（Mac 必看）](#0-第零课让-option-键正常工作mac-必看)
 1. [你会学到什么](#1-你会学到什么)
 2. [第一课：认识你的工具链](#2-第一课认识你的工具链)
 3. [第二课：AeroSpace — 窗口不用鼠标拖了](#3-第二课aerospace--窗口不用鼠标拖了)
@@ -20,6 +24,52 @@
 10. [第九课：在新机器上一键恢复环境](#10-第九课在新机器上一键恢复环境)
 11. [第十课：日常训练计划（21天养成习惯）](#11-第十课日常训练计划21天养成习惯)
 12. [附录：遇到问题怎么办](#12-附录遇到问题怎么办)
+
+---
+
+## 0. 第零课：让 Option 键正常工作（Mac 必看）
+
+Mac 键盘上没有 "Alt" 键，但有 **Option（⌥）键**，它就是 Alt。
+
+不过 macOS 默认让 Option 键输入特殊字符（比如 Option+j 会输出 ∆），
+所以你按 Option+h/j/k/l **不会切换窗口/面板，而是打出奇怪的符号**。
+
+### 修复方法
+
+需要在 Alacritty 配置里把 Option 键的行为改成"发送 Alt 信号"。
+
+**已经帮你改好了。** 配置文件在 `~/.config/alacritty/alacritty.toml`，关键的一行是：
+
+```toml
+[window]
+option_as_alt = "Both"
+```
+
+这行的意思是：左右两个 Option 键都当 Alt 键用。
+
+### 验证方法
+
+1. **完全退出 Alacritty**（Cmd+Q，不是关窗口）
+2. **重新打开 Alacritty**
+3. 进入 tmux：`tmux new -s test`
+4. 按 `前缀+|` 左右分屏
+5. 按 **Option+l** → 如果焦点跳到了右边面板，就说明生效了
+
+### 如果还是不行
+
+检查 AeroSpace 是否在运行（看菜单栏有没有小飞机图标），
+如果没有，在 Spotlight（Cmd+Space）搜索 AeroSpace 打开。
+
+### 本教程的按键对照表
+
+| 教程写法 | 你键盘上按 |
+|---------|-----------|
+| Option + h | Option + h |
+| Option + Shift + 1 | Option + Shift + 1 |
+| Ctrl + a | Control + a |
+| Cmd + Space | Command + 空格 |
+
+后面教程统一写 "Option"，不再写 "Alt"。
 
 ---
 
@@ -94,51 +144,51 @@ AeroSpace 的方式：打开窗口 → 自动并排排列 → 用键盘一秒切
 **练习 1：打开两个窗口看效果**
 
 ```
-1. Alt+Enter          → 打开一个终端
-2. 再按 Alt+Enter     → 打开第二个终端
+1. Option+Enter          → 打开一个终端
+2. 再按 Option+Enter     → 打开第二个终端
 3. 观察：两个终端自动左右平铺了！
 ```
 
 **练习 2：在窗口间切换**
 
 ```
-1. Alt+h              → 焦点移到左边的窗口
-2. Alt+l              → 焦点移到右边的窗口
-3. Alt+j / Alt+k      → 上下切换（如果有上下排列的窗口）
+1. Option+h              → 焦点移到左边的窗口
+2. Option+l              → 焦点移到右边的窗口
+3. Option+j / Option+k      → 上下切换（如果有上下排列的窗口）
 ```
 
 **练习 3：移动窗口位置**
 
 ```
-1. Alt+Shift+l        → 把当前窗口移到右边
-2. Alt+Shift+h        → 把当前窗口移到左边
+1. Option+Shift+l        → 把当前窗口移到右边
+2. Option+Shift+h        → 把当前窗口移到左边
 ```
 
 **练习 4：使用多个桌面**
 
 ```
-1. Alt+1              → 切到桌面 1（终端）
-2. Alt+2              → 切到桌面 2（浏览器）
+1. Option+1              → 切到桌面 1（终端）
+2. Option+2              → 切到桌面 2（浏览器）
    打开 Safari 或 Chrome，它会自动跑到桌面 2
-3. Alt+1              → 切回桌面 1
-4. Alt+Shift+2        → 把当前窗口发送到桌面 2
+3. Option+1              → 切回桌面 1
+4. Option+Shift+2        → 把当前窗口发送到桌面 2
 ```
 
 **练习 5：窗口全屏**
 
 ```
-1. Alt+f              → 当前窗口全屏
-2. 再按 Alt+f         → 恢复平铺
+1. Option+f              → 当前窗口全屏
+2. 再按 Option+f         → 恢复平铺
 ```
 
 ### 3.4 小结
 
 ```
 记住这几个就够日常用了：
-- Alt+h/j/k/l          切换窗口
-- Alt+1-9               切换桌面
-- Alt+Enter             开终端
-- Alt+f                 全屏
+- Option+h/j/k/l          切换窗口
+- Option+1-9               切换桌面
+- Option+Enter             开终端
+- Option+f                 全屏
 ```
 
 ---
@@ -205,19 +255,19 @@ tmux new -s learn
 2. 前缀+-       → 上下分屏
    现在右边又分成了上下两个
 
-3. Alt+h        → 跳到左边面板
-4. Alt+l        → 跳到右边面板
-5. Alt+j        → 跳到下面面板
-6. Alt+k        → 跳到上面面板
+3. Option+h        → 跳到左边面板
+4. Option+l        → 跳到右边面板
+5. Option+j        → 跳到下面面板
+6. Option+k        → 跳到上面面板
 ```
 
 **练习 3：在面板里做不同的事**
 
 ```
 1. 在左边面板输入：    ls -la
-2. Alt+l 跳到右边面板
+2. Option+l 跳到右边面板
 3. 在右边面板输入：    top      （查看系统进程）
-4. Alt+h 跳回左边面板
+4. Option+h 跳回左边面板
 5. 观察：两边同时显示不同内容！
 ```
 
@@ -260,7 +310,7 @@ SSH 断了 → 重新连 → tmux attach → 恢复现场
 - tmux attach -t 名字   恢复会话
 - 前缀+|               左右分屏
 - 前缀+-               上下分屏
-- Alt+h/j/k/l          切换面板
+- Option+h/j/k/l          切换面板
 - 前缀+c/n/p           新建/切换窗口
 - 前缀+d               断开（后台保留）
 ```
@@ -825,7 +875,7 @@ git clone --depth 1 https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 | 天 | 目标 | 练什么 |
 |----|------|--------|
-| 1 | AeroSpace 基础 | 用 Alt+h/j/k/l 切换窗口，用 Alt+1-9 切桌面，全天不用鼠标切窗口 |
+| 1 | AeroSpace 基础 | 用 Option+h/j/k/l 切换窗口，用 Option+1-9 切桌面，全天不用鼠标切窗口 |
 | 2 | tmux 基础 | 创建会话、分屏、切换面板。试试断开再恢复 |
 | 3 | Neovim 存活 | 用 nvim 打开文件，i 编辑，Esc 回来，:wq 保存退出。反复练 10 次 |
 | 4 | Neovim 移动 | 全天用 nvim 编辑文件，只用 hjkl 移动，不用方向键 |
