@@ -4,7 +4,14 @@
 > 每一步都有完整操作和预期结果，建议你边看边跟着做。
 > 快捷键速查请看 README.md。
 >
-> **Mac 用户注意：本教程中所有写 "Alt" 的地方，就是你键盘上的 Option 键（⌥）。**
+> **Mac 键盘上有三个修饰键，别搞混：**
+>
+> | 按键名 | 符号 | 键盘位置 | 本教程用在哪 |
+> |--------|------|----------|-------------|
+> | **Control** | ⌃ | 左下角，fn 旁边 | tmux 前缀键、tmux 面板切换 |
+> | **Option** | ⌥ | Command 左右两边 | AeroSpace 窗口管理 |
+> | **Command** | ⌘ | 空格左右两边 | macOS 系统操作（本教程很少用） |
+>
 > 如果按 Option+h/j/k/l 没反应，请先完成"第零课"。
 
 ---
@@ -27,49 +34,71 @@
 
 ---
 
-## 0. 第零课：让 Option 键正常工作（Mac 必看）
+## 0. 第零课：认识 Mac 键盘的修饰键（Mac 必看）
 
-Mac 键盘上没有 "Alt" 键，但有 **Option（⌥）键**，它就是 Alt。
+### 先认清你键盘上的三个修饰键
 
-不过 macOS 默认让 Option 键输入特殊字符（比如 Option+j 会输出 ∆），
-所以你按 Option+h/j/k/l **不会切换窗口/面板，而是打出奇怪的符号**。
+Mac 键盘最下面一排，从左到右大概是这样：
 
-### 修复方法
+```
+┌──────┐┌───┐┌───────┐┌──────┐┌─────────────────────┐┌──────┐┌───────┐┌───┐
+│  fn  ││ ⌃ ││  ⌥    ││  ⌘   ││       空格           ││  ⌘   ││  ⌥    ││⌃  │
+│      ││Con││Option ││Commd ││                     ││Commd ││Option ││Con│
+│      ││trol││      ││ and  ││                     ││ and  ││      ││trl│
+└──────┘└───┘└───────┘└──────┘└─────────────────────┘└──────┘└───────┘└───┘
+```
 
-需要在 Alacritty 配置里把 Option 键的行为改成"发送 Alt 信号"。
+**三个键各管各的事，千万别搞混：**
 
-**已经帮你改好了。** 配置文件在 `~/.config/alacritty/alacritty.toml`，关键的一行是：
+| 键名 | 符号 | 在键盘哪里 | 本教程用来干什么 |
+|------|------|-----------|----------------|
+| **Control** | ⌃ | fn 旁边（左下角 / 右下角） | **tmux 所有操作**（前缀键 Control+a、面板切换 Control+h/j/k/l） |
+| **Option** | ⌥ | Command 两边 | **AeroSpace 窗口管理**（Option+h/j/k/l 切窗口、Option+1-9 切桌面） |
+| **Command** | ⌘ | 空格两边 | macOS 系统快捷键（Command+Q 退出、Command+空格 Spotlight），本教程很少用 |
+
+> **一句话记住：Control 管 tmux，Option 管 AeroSpace，Command 管 macOS。**
+
+### 为什么 Option 键可能不工作
+
+macOS 默认让 Option 键输入特殊字符（比如 Option+j 输出 ∆），
+所以你按 Option+h/j/k/l **不会切换窗口，而是打出奇怪的符号**。
+
+需要在 Alacritty 配置里修复。**已经帮你改好了。**
+
+配置文件在 `~/.config/alacritty/alacritty.toml`，关键设置：
 
 ```toml
 [window]
 option_as_alt = "Both"
 ```
 
-这行的意思是：左右两个 Option 键都当 Alt 键用。
+这让 Option 键发送正确的信号，AeroSpace 才能收到。
 
 ### 验证方法
 
-1. **完全退出 Alacritty**（Cmd+Q，不是关窗口）
+1. **完全退出 Alacritty**（Command+Q，不是点×关窗口）
 2. **重新打开 Alacritty**
-3. 进入 tmux：`tmux new -s test`
-4. 按 `前缀+|` 左右分屏
-5. 按 **Option+l** → 如果焦点跳到了右边面板，就说明生效了
+3. 打开两个 App 窗口（比如 Alacritty + Safari）让它们左右排列
+4. 按 **Option+l** → 如果焦点跳到了右边的窗口 → AeroSpace 正常工作了
+5. 进入 tmux 测试：`tmux new -s test`，按 `Control+a` 然后按 `|` 分屏，按 **Control+l** → 焦点跳到右面板 → tmux 正常工作了
 
-### 如果还是不行
+### 如果 Option 快捷键还是不行
 
 检查 AeroSpace 是否在运行（看菜单栏有没有小飞机图标），
-如果没有，在 Spotlight（Cmd+Space）搜索 AeroSpace 打开。
+如果没有，在 Spotlight（Command+空格）搜索 AeroSpace 打开。
 
-### 本教程的按键对照表
+### 本教程的按键写法对照表
 
-| 教程写法 | 你键盘上按 |
-|---------|-----------|
-| Option + h | Option + h |
-| Option + Shift + 1 | Option + Shift + 1 |
-| Ctrl + a | Control + a |
-| Cmd + Space | Command + 空格 |
+| 教程里这么写 | 你实际按的键 | 用在哪 |
+|-------------|------------|--------|
+| Control+a | 左下角 ⌃ + a | tmux 前缀键 |
+| Control+h/j/k/l | 左下角 ⌃ + h/j/k/l | tmux 切换面板 |
+| Option+h/j/k/l | Command 旁边 ⌥ + h/j/k/l | AeroSpace 切换窗口 |
+| Option+1-9 | Command 旁边 ⌥ + 1-9 | AeroSpace 切换桌面 |
+| Command+Q | ⌘ + Q | macOS 退出应用 |
+| Command+空格 | ⌘ + 空格 | macOS Spotlight 搜索 |
 
-后面教程统一写 "Option"，不再写 "Alt"。
+> **后面教程统一写法：Control = tmux 操作，Option = AeroSpace 操作。**
 
 ---
 
@@ -231,9 +260,9 @@ Session（会话）
 
 tmux 的所有快捷键都需要先按"前缀键"，再按功能键。
 
-我们的前缀键是 **Ctrl+a**（两个键同时按，然后松开，再按后面的键）。
+我们的前缀键是 **Control+a**（键盘左下角 ⌃ 和 a 同时按，松开，再按后面的键）。
 
-写法约定：`前缀+x` 表示先按 Ctrl+a，松开，再按 x。
+写法约定：`前缀+x` 表示先按 Control+a，松开，再按 x。
 
 ### 4.4 跟着练：完整流程
 
@@ -249,25 +278,25 @@ tmux new -s learn
 **练习 2：分屏**
 
 ```
-1. 前缀+|       → 左右分屏（按 Ctrl+a，松开，再按 |）
+1. 前缀+|       → 左右分屏（按 Control+a，松开，再按 |）
    现在你有左右两个面板了
 
 2. 前缀+-       → 上下分屏
    现在右边又分成了上下两个
 
-3. Option+h        → 跳到左边面板
-4. Option+l        → 跳到右边面板
-5. Option+j        → 跳到下面面板
-6. Option+k        → 跳到上面面板
+3. Control+h     → 跳到左边面板（注意是 Control，不是 Command）
+4. Control+l     → 跳到右边面板
+5. Control+j     → 跳到下面面板
+6. Control+k     → 跳到上面面板
 ```
 
 **练习 3：在面板里做不同的事**
 
 ```
 1. 在左边面板输入：    ls -la
-2. Option+l 跳到右边面板
+2. Control+l 跳到右边面板
 3. 在右边面板输入：    top      （查看系统进程）
-4. Option+h 跳回左边面板
+4. Control+h 跳回左边面板
 5. 观察：两边同时显示不同内容！
 ```
 
@@ -310,7 +339,7 @@ SSH 断了 → 重新连 → tmux attach → 恢复现场
 - tmux attach -t 名字   恢复会话
 - 前缀+|               左右分屏
 - 前缀+-               上下分屏
-- Option+h/j/k/l          切换面板
+- Control+h/j/k/l         切换面板
 - 前缀+c/n/p           新建/切换窗口
 - 前缀+d               断开（后台保留）
 ```
@@ -417,7 +446,7 @@ dd   = 删除整行
 yy   = 复制整行
 p    = 粘贴
 u    = 撤销
-Ctrl+r = 重做
+Control+r = 重做
 gcc  = 注释/取消注释当前行
 ```
 
@@ -546,7 +575,7 @@ git clone --depth 1 https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 # 进入 tmux
 tmux new -s dev
 
-# 按 Ctrl-a + I 安装 tmux 插件
+# 按 Control+a 然后按 Shift+i 安装 tmux 插件
 # 打开 nvim，等待 LazyVim 自动安装插件
 ```
 
@@ -633,7 +662,7 @@ tmux new -s work
 python train.py
 
 # 需要离开了？断开 tmux（程序继续跑）
-# 按 Ctrl-a + d
+# 按 Control+a，松开，再按 d
 
 # 下次连回来
 ssh myserver
@@ -733,19 +762,19 @@ ssh myserver
 当你 SSH 到服务器，服务器上也有 tmux 时：
 
 ```
-你的 Mac tmux（前缀 Ctrl-a）
+你的 Mac tmux（前缀 Control+a）
 └── 窗口 3：ssh myserver
-    └── 服务器上的 tmux（前缀也是 Ctrl-a）
+    └── 服务器上的 tmux（前缀也是 Control+a）
 ```
 
 怎么区分哪个 tmux 收到指令？
-- **按一次** Ctrl-a → 发给 Mac 上的 tmux
-- **按两次** Ctrl-a Ctrl-a → 发给服务器上的 tmux
+- **按一次** Control+a → 发给 Mac 上的 tmux
+- **按两次** Control+a Control+a → 发给服务器上的 tmux
 
 例如：
 ```
-Ctrl-a + c    → 在 Mac 的 tmux 里新建窗口
-Ctrl-a Ctrl-a + c  → 在服务器的 tmux 里新建窗口
+Control+a 再按 c    → 在 Mac 的 tmux 里新建窗口
+Control+a Control+a 再按 c  → 在服务器的 tmux 里新建窗口
 ```
 
 ### 8.6 进阶：同时管理多个 Docker 容器
@@ -847,7 +876,7 @@ ln -sf ~/Dotsfile_ALL/nvim ~/.config/nvim
 # 安装 TPM
 git clone --depth 1 https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
-# 进入 tmux，按 Ctrl-a + I 安装插件
+# 进入 tmux，按 Control+a 然后按 Shift+i 安装插件
 tmux
 # 打开 nvim，自动安装插件
 nvim
@@ -932,10 +961,11 @@ git clone --depth 1 https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
    - tmux 快捷键：必须在 tmux 里面
    - Neovim 快捷键：必须在 nvim 里面，且在 Normal 模式
 
-2. tmux 前缀键是 Ctrl+a，不是 Ctrl+b（我们改过了）
+2. tmux 前缀键是 Control+a（⌃+a），不是 Control+b（我们改过了）
+   注意是 Control 键（左下角 ⌃），不是 Command 键（⌘）
 
 3. 确认 tmux 配置已加载：
-   在 tmux 里按 Ctrl-a + r 重载
+   在 tmux 里按 Control+a 然后按 r 重载
 ```
 
 ### "Neovim 打开全是报错"

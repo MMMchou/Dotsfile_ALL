@@ -172,7 +172,7 @@ install_tpm() {
     fi
 
     info "安装 tmux 插件..."
-    "$tpm_dir/bin/install_plugins" || warn "tmux 插件安装失败（可稍后在 tmux 中按 Ctrl-a + I 手动安装）"
+    "$tpm_dir/bin/install_plugins" || warn "tmux 插件安装失败（可稍后在 tmux 中按 Control+a 再按 Shift+i 手动安装）"
 }
 
 # ============================================================
@@ -214,7 +214,7 @@ main() {
     echo "  2. source ~/.shell_env  让环境变量生效"
     echo "  3. 打开 OrbStack App 完成初始化"
     echo "  4. 打开 AeroSpace App（或重启后自动启动）"
-    echo "  5. 进入 tmux 按 Ctrl-a + I 确认插件已安装"
+    echo "  5. 进入 tmux 按 Control+a 再按 Shift+i 确认插件已安装"
     echo "  6. 打开 nvim 等待插件自动加载"
     echo ""
     info "配置文件修改指南见 README.md"

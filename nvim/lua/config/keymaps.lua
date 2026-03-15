@@ -8,8 +8,13 @@
 --
 -- 说明：
 -- <leader> 键默认是 空格（Space）
--- <C-x>    表示 Ctrl + x
--- <A-x>    表示 Alt/Option + x
+-- <C-x>    表示 Control + x（键盘左下角 ⌃ 键，不是 Command）
+-- <S-x>    表示 Shift + x
+--
+-- 按键分工（避免冲突）：
+-- Option (⌥)  → AeroSpace 窗口管理（系统层，不要在这里绑）
+-- Control (⌃) → tmux 面板切换 / Neovim 操作
+-- Space        → LazyVim leader 键
 -- ============================================================
 
 local map = vim.keymap.set
@@ -18,17 +23,12 @@ local map = vim.keymap.set
 map("n", "<C-s>", "<cmd>w<cr>", { desc = "保存文件" })
 map("n", "<C-q>", "<cmd>qa<cr>", { desc = "退出全部" })
 
--- ---- 移动行（Alt + j/k 可以上下挪整行）----
-map("n", "<A-j>", "<cmd>m .+1<cr>==", { desc = "当前行下移" })
-map("n", "<A-k>", "<cmd>m .-2<cr>==", { desc = "当前行上移" })
-map("v", "<A-j>", ":m '>+1<cr>gv=gv", { desc = "选中行下移" })
-map("v", "<A-k>", ":m '<-2<cr>gv=gv", { desc = "选中行上移" })
-
--- ---- 分屏导航（Ctrl + h/j/k/l 在窗口间跳转）----
-map("n", "<C-h>", "<C-w>h", { desc = "跳到左窗口" })
-map("n", "<C-j>", "<C-w>j", { desc = "跳到下窗口" })
-map("n", "<C-k>", "<C-w>k", { desc = "跳到上窗口" })
-map("n", "<C-l>", "<C-w>l", { desc = "跳到右窗口" })
+-- ---- 移动行（Control+Shift+j/k 上下挪整行）----
+-- 不用 Option+j/k，因为 AeroSpace 会拦截 Option 键
+map("n", "<C-S-j>", "<cmd>m .+1<cr>==", { desc = "当前行下移" })
+map("n", "<C-S-k>", "<cmd>m .-2<cr>==", { desc = "当前行上移" })
+map("v", "<C-S-j>", ":m '>+1<cr>gv=gv", { desc = "选中行下移" })
+map("v", "<C-S-k>", ":m '<-2<cr>gv=gv", { desc = "选中行上移" })
 
 -- ---- 调整分屏大小 ----
 map("n", "<C-Up>", "<cmd>resize +2<cr>", { desc = "窗口高度+2" })
