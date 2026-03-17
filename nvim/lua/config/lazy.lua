@@ -16,9 +16,39 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
   spec = {
-    -- add LazyVim and import its plugins
+    -- LazyVim 核心插件（必须保留）
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
-    -- import/override with your plugins
+
+    -- ===================== LazyVim Extras（官方语言/功能模块） =====================
+    -- 每一行启用一个模块，会自动安装该语言需要的 LSP、格式化、调试器等全套工具
+    -- 完整列表：https://www.lazyvim.org/extras
+    -- 也可以在 nvim 里输入 :LazyExtras 用界面勾选
+
+    -- ========== 语言支持 ==========
+    { import = "lazyvim.plugins.extras.lang.python" },     -- Python 全家桶：pyright（补全）+ ruff（格式化）+ debugpy（调试）+ venv 选择器
+    { import = "lazyvim.plugins.extras.lang.json" },       -- JSON：schema 验证（编辑配置文件很有用）
+    { import = "lazyvim.plugins.extras.lang.markdown" },   -- Markdown：增强语法高亮
+    { import = "lazyvim.plugins.extras.lang.docker" },     -- Docker：Dockerfile / compose 语法 + LSP
+    { import = "lazyvim.plugins.extras.lang.yaml" },       -- YAML：k8s / GitHub Actions 等配置文件
+    { import = "lazyvim.plugins.extras.lang.toml" },       -- TOML：你的 aerospace.toml / alacritty.toml
+    { import = "lazyvim.plugins.extras.lang.git" },        -- Git：增强 git commit / rebase 编辑体验
+    { import = "lazyvim.plugins.extras.lang.sql" },        -- SQL：写数据库查询时有补全和高亮
+
+    -- ========== AI 辅助编程（写代码的 AI 助手） ==========
+    { import = "lazyvim.plugins.extras.ai.copilot" },      -- GitHub Copilot：实时 AI 代码补全（需要 Copilot 订阅）
+    { import = "lazyvim.plugins.extras.ai.copilot-chat" }, -- Copilot Chat：在 nvim 里跟 AI 对话问问题
+
+    -- ========== 编辑器增强 ==========
+    { import = "lazyvim.plugins.extras.editor.dial" },     -- 增强 Control+a/x：数字、布尔值、日期等快速递增递减
+    { import = "lazyvim.plugins.extras.editor.mini-move" },-- 用 Option+hjkl 移动选中的行/块（在 nvim 内部，不冲突）
+
+    -- ========== 调试 ==========
+    { import = "lazyvim.plugins.extras.dap.core" },        -- 调试器核心：断点、单步、变量查看（配合 Python debugpy）
+
+    -- ========== 格式化 ==========
+    { import = "lazyvim.plugins.extras.formatting.prettier" }, -- Prettier：自动格式化 JSON/MD/YAML 等
+
+    -- 你自己的插件（lua/plugins/ 文件夹里的所有文件）
     { import = "plugins" },
   },
   defaults = {
