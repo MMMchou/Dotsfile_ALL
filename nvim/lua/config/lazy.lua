@@ -34,9 +34,10 @@ require("lazy").setup({
     { import = "lazyvim.plugins.extras.lang.git" },        -- Git：增强 git commit / rebase 编辑体验
     { import = "lazyvim.plugins.extras.lang.sql" },        -- SQL：写数据库查询时有补全和高亮
 
-    -- ========== AI 辅助编程（写代码的 AI 助手） ==========
-    { import = "lazyvim.plugins.extras.ai.copilot" },      -- GitHub Copilot：实时 AI 代码补全（需要 Copilot 订阅）
-    { import = "lazyvim.plugins.extras.ai.copilot-chat" }, -- Copilot Chat：在 nvim 里跟 AI 对话问问题
+    -- ========== AI 辅助编程 ==========
+    -- GitHub Copilot 需要付费订阅，已禁用。如果以后买了，取消下面两行注释即可：
+    -- { import = "lazyvim.plugins.extras.ai.copilot" },
+    -- { import = "lazyvim.plugins.extras.ai.copilot-chat" },
 
     -- ========== 编辑器增强 ==========
     { import = "lazyvim.plugins.extras.editor.dial" },     -- 增强 Control+a/x：数字、布尔值、日期等快速递增递减

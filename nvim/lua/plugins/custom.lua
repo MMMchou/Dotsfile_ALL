@@ -74,12 +74,7 @@ return {
     opts = {},
   },
 
-  -- 高亮光标下相同的单词（LazyVim 内置了 vim-illuminate，这里确保启用）
-  {
-    "RRethy/vim-illuminate",
-    event = "LazyFile",
-    opts = {},
-  },
+  -- 高亮光标下相同的单词（LazyVim 已内置 vim-illuminate，无需重复配置）
 
   -- ===================== Git 增强 =====================
 
@@ -116,9 +111,8 @@ return {
   -- 原理：用 jupytext 把 .ipynb 转成 .py 编辑，保存时自动转回 .ipynb
   -- 前置条件：pip install jupytext
   {
-    "goerz/jupytext.nvim",
-    version = "*",
-    opts = {},
+    "GCBallesteros/jupytext.nvim",
+    config = true,
   },
 
   -- ===================== Markdown =====================

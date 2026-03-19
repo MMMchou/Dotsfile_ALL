@@ -21,22 +21,24 @@
 # 主要是让 AeroSpace 能收到 Option 键的信号
 option_as_alt = "Both"
 
-# 窗口默认大小（列 x 行）
-columns = 120
-lines = 36
+# 窗口装饰（标题栏样式）：Full / None / Transparent / Buttonless
+decorations = "Buttonless"
+
+# 启动时最大化：Windowed / Maximized / Fullscreen
+startup_mode = "Maximized"
+
+# 背景透明度（1.0 = 完全不透明，0.8 = 微透明）
+opacity = 0.95
 
 # 窗口内边距（像素）
 padding.x = 8
 padding.y = 8
 
-# 窗口装饰（标题栏样式）
-decorations = "Buttonless"
-
-# 启动时最大化
-startup_mode = "Maximized"
-
-# 背景透明度（1.0 = 完全不透明，0.8 = 微透明）
-opacity = 0.95
+# 窗口默认大小（列 x 行）
+# 注意：因为 startup_mode = "Maximized"，这个只影响非最大化时的大小
+[window.dimensions]
+columns = 120
+lines = 36
 
 [font]
 # 字体大小
@@ -48,7 +50,7 @@ size = 14.0
 # style = "Regular"
 
 [keyboard]
-# Cmd+N 新建窗口
+# Command+N 新建窗口
 bindings = [
   { key = "N", mods = "Command", action = "CreateNewWindow" },
 ]
