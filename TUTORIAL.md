@@ -1,8 +1,11 @@
-# 从零开始：macOS 终端开发工作流新手训练教程
+# 从零开始：终端开发工作流新手训练教程（macOS + Linux）
 
 > 本教程面向完全没用过 tmux / Neovim / AeroSpace / OrbStack / SSH 的新手。
 > 每一步都有完整操作和预期结果，建议你边看边跟着做。
 > 快捷键速查请看 README.md。
+>
+> **Linux 用户注意：** AeroSpace、OrbStack、Alacritty 是 macOS 专属工具，Linux 上不需要。
+> Linux 用户可以跳过第零课、第二课、第五课，直接从第三课（tmux）和第四课（Neovim）开始。
 >
 > **Mac 键盘上有三个修饰键，别搞混：**
 >
@@ -856,14 +859,51 @@ nano ~/.shell_env    # 修改里面的值
 source ~/.shell_env
 ```
 
-### 10.2 远程 Linux 服务器（精简版）
+### 10.2 远程 Linux 服务器（一键安装 — 推荐）
+
+```bash
+# 只需要 git 能用就行（大多数服务器都有）
+# 如果没有 git：sudo apt install -y git 或 sudo yum install -y git
+
+# 克隆并运行安装脚本
+git clone https://github.com/MMMchou/Dotsfile_ALL.git ~/Dotsfile_ALL
+cd ~/Dotsfile_ALL
+chmod +x install.sh
+./install.sh
+
+# 安装完成后：
+source ~/.bashrc
+
+# 如需 Claude Code，编辑环境变量：
+cp shell/.shell_env.example ~/.shell_env
+nano ~/.shell_env
+source ~/.shell_env
+```
+
+**脚本会自动处理的事情：**
+
+| Linux 上的问题 | install.sh 怎么解决 |
+|---------------|-------------------|
+| 哪个包管理器？ | 自动检测 apt / yum / dnf / pacman |
+| Neovim 版本太旧（<0.9） | x86_64 自动下载 AppImage，ARM64 用 PPA |
+| `fd` 命令名不同 | apt 上叫 `fd-find`，自动创建 `fd` 软链接 |
+| tmux 复制用什么？ | 自动装 `xclip`，tmux.conf 自动判断 OS 用 `xclip` 代替 `pbcopy` |
+| 状态栏电池显示 | 自动隐藏（Linux 服务器没有电池） |
+| AeroSpace / OrbStack | 自动跳过（这些是 macOS 专属） |
+| node / npm | 自动安装（markdown-preview 插件需要） |
+| `.bashrc` 配置 | 自动添加 `~/.local/bin` 到 PATH、加载 `.shell_env` |
+| FUSE 不可用 | AppImage 自动解压安装 |
+
+### 10.2b 远程 Linux 服务器（手动安装 — 备选）
+
+如果不想运行 install.sh，也可以手动操作：
 
 ```bash
 # 装工具（Ubuntu/Debian）
-sudo apt update && sudo apt install -y git tmux neovim
+sudo apt update && sudo apt install -y git tmux xclip ripgrep fd-find curl
 
 # 装工具（CentOS/RHEL）
-sudo yum install -y git tmux neovim
+sudo yum install -y git tmux xclip ripgrep
 
 # 克隆配置
 git clone https://github.com/MMMchou/Dotsfile_ALL.git ~/Dotsfile_ALL
@@ -881,6 +921,15 @@ tmux
 # 打开 nvim，自动安装插件
 nvim
 ```
+
+> **注意：** 手动安装时需自行确保 Neovim >= 0.9。如果系统仓库版本太旧，可以用 AppImage：
+> ```bash
+> mkdir -p ~/.local/bin
+> curl -fsSL -o ~/.local/bin/nvim.appimage https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
+> chmod +x ~/.local/bin/nvim.appimage
+> ln -sf ~/.local/bin/nvim.appimage ~/.local/bin/nvim
+> export PATH="$HOME/.local/bin:$PATH"
+> ```
 
 ### 10.3 OrbStack Linux 虚拟机
 
@@ -997,8 +1046,12 @@ ssh -vvv 别名
 ### "Docker 命令不存在"
 
 ```bash
-# 确认 OrbStack 已打开
+# macOS：确认 OrbStack 已打开
 open -a OrbStack
+
+# Linux：确认 Docker 已安装
+# Ubuntu: sudo apt install -y docker.io && sudo systemctl start docker
+# 如果提示权限不够：sudo usermod -aG docker $USER，然后重新登录
 
 # 等几秒后重试
 docker ps
@@ -1027,6 +1080,60 @@ HTTPS_PROXY=http://127.0.0.1:33210 gh auth login --web
 
 # push 时加代理
 HTTPS_PROXY=http://127.0.0.1:33210 git push
+```
+
+### Linux 特有问题
+
+#### "tmux 复制内容粘贴不到本地"
+
+```bash
+# 需要 xclip（install.sh 自动装了）
+sudo apt install -y xclip
+
+# 如果通过 SSH 连接的服务器，还需要 X11 转发：
+ssh -X 服务器别名
+# 或者在 ~/.ssh/config 中加 ForwardX11 yes
+```
+
+#### "nvim 版本太旧，LazyVim 报错"
+
+```bash
+# LazyVim 需要 Neovim 0.9+，查看当前版本
+nvim --version | head -1
+
+# 如果低于 0.9，用 AppImage 安装（x86_64）：
+mkdir -p ~/.local/bin
+curl -fsSL -o ~/.local/bin/nvim.appimage \
+  https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
+chmod +x ~/.local/bin/nvim.appimage
+ln -sf ~/.local/bin/nvim.appimage ~/.local/bin/nvim
+export PATH="$HOME/.local/bin:$PATH"
+
+# ARM64 服务器用 PPA 或 snap：
+sudo snap install neovim --classic
+```
+
+#### "fd 命令找不到"
+
+```bash
+# Ubuntu/Debian 上 fd 叫 fd-find
+sudo apt install -y fd-find
+
+# 创建别名
+mkdir -p ~/.local/bin
+ln -sf $(which fdfind) ~/.local/bin/fd
+```
+
+#### "Nerd Font 图标显示为方块"
+
+```bash
+# 下载并安装 JetBrainsMono Nerd Font
+mkdir -p ~/.local/share/fonts
+cd ~/.local/share/fonts
+curl -fLO https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz
+tar -xf JetBrainsMono.tar.xz
+fc-cache -fv
+# 然后在终端模拟器设置中选择 JetBrainsMono Nerd Font
 ```
 
 ---

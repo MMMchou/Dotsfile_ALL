@@ -1,8 +1,20 @@
 # Dotsfile_ALL
 
-macOS 开发环境一键配置：tmux + Neovim(LazyVim) + AeroSpace + OrbStack + SSH + Claude Code。
+macOS + Linux 开发环境一键配置：tmux + Neovim(LazyVim) + AeroSpace(macOS) + OrbStack(macOS) + SSH + Claude Code。
 
-克隆仓库、运行脚本，即可在任意 Mac 上还原完整开发环境。
+克隆仓库、运行脚本，即可在 Mac 或 Linux 服务器上还原完整开发环境。
+
+### 平台支持
+
+| 工具 | macOS | Linux |
+|------|:-----:|:-----:|
+| tmux | ✅ | ✅ |
+| Neovim + LazyVim | ✅ | ✅（自动安装 AppImage） |
+| AeroSpace 窗口管理 | ✅ | ❌ 不需要（服务器无 GUI） |
+| OrbStack (Docker/VM) | ✅ | ❌ 不需要（已经是 Linux） |
+| Alacritty 终端 | ✅ | ❌ 不需要（用系统终端） |
+| SSH 配置 | ✅ | ✅ |
+| Claude Code | ✅ | ✅ |
 
 ---
 
@@ -222,9 +234,41 @@ cd ~/Dotsfile_ALL && ./install.sh
 # 完成！
 ```
 
-### 在远程服务器上部署（精简版）
+### 在 Linux 服务器上部署（一键安装）
 
-服务器通常不需要 AeroSpace 和 OrbStack，只需要 tmux + nvim：
+```bash
+# 同样一条命令搞定，install.sh 自动检测 OS
+git clone https://github.com/MMMchou/Dotsfile_ALL.git ~/Dotsfile_ALL
+cd ~/Dotsfile_ALL && chmod +x install.sh && ./install.sh
+
+# 安装完后：
+source ~/.bashrc
+# 编辑 ~/.shell_env 填入你的环境变量
+```
+
+脚本会自动：
+- 检测包管理器（apt / yum / dnf / pacman）
+- 安装 tmux、git、ripgrep、fd、xclip、node
+- 如果系统 Neovim 版本 < 0.9，自动用 AppImage 安装新版（x86_64）或 PPA（ARM64）
+- 跳过 macOS 专属工具（AeroSpace / OrbStack / Alacritty）
+- tmux 自动适配剪贴板（macOS 用 pbcopy，Linux 用 xclip）
+- tmux 状态栏自动隐藏电池信息（Linux 服务器没有电池）
+
+### Linux 部署注意事项
+
+| 问题 | 解决方案 |
+|------|----------|
+| Neovim 版本太旧（<0.9） | 脚本自动安装 AppImage |
+| 没有 `fd` 命令 | apt 上叫 `fd-find`，脚本自动创建 `fd` 软链接 |
+| tmux 复制不到剪贴板 | 需要 `xclip`（脚本自动安装），SSH 还需要 X11 转发 |
+| Python 路径不同 | macOS: `~/Library/Python/x.x/bin`，Linux: `~/.local/bin` |
+| 没有 GUI | AeroSpace/Alacritty 不需要，直接用 tmux + nvim |
+| ARM64 服务器 | Neovim 自动通过 PPA 安装 |
+| FUSE 不可用 | AppImage 自动解压安装 |
+
+### 在远程服务器上手动部署（备选）
+
+如果不想运行 install.sh，也可以手动操作：
 
 ```bash
 # 在服务器上（需要先装 git/tmux/nvim）
@@ -295,9 +339,17 @@ git pull
 ### Q: 状态栏图标显示方块？
 A: 你的终端字体不支持图标。安装 Nerd Font：
 ```bash
+# macOS
 brew install --cask font-jetbrains-mono-nerd-font
+
+# Linux（手动下载）
+mkdir -p ~/.local/share/fonts
+cd ~/.local/share/fonts
+curl -fLO https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz
+tar -xf JetBrainsMono.tar.xz
+fc-cache -fv
 ```
-然后在 Alacritty 配置里把字体改成 `JetBrainsMono Nerd Font`。
+macOS 在 Alacritty 配置里把字体改成 `JetBrainsMono Nerd Font`。Linux 在终端模拟器设置里修改。
 
 ### Q: tmux 插件没装上？
 A: 进入 tmux 后按 `Control+a` 然后按 `Shift+i` 手动安装。如果 GitHub 连不上，开 VPN 或用镜像。
@@ -320,7 +372,13 @@ A: tmux 和 nvim 都可以独立切换：
 A: 不会。`.gitignore` 已排除 `shell/.shell_env`。仓库里只有脱敏的 `.shell_env.example`。
 
 ### Q: 在 Linux 服务器上能用吗？
-A: tmux 和 nvim 的配置可以直接用。AeroSpace 和 OrbStack 仅限 macOS。SSH config 是客户端配置，放在你自己的 Mac 上。
+A: 完全支持！运行 `./install.sh` 即可，脚本自动检测 OS 并安装合适的工具。tmux 和 nvim 配置通用，剪贴板和状态栏已自动适配 Linux。AeroSpace 和 OrbStack 仅限 macOS，在 Linux 上自动跳过。
+
+### Q: Linux 上 tmux 复制内容怎么粘贴到本地？
+A: 需要两个条件：(1) 服务器安装 `xclip`（脚本自动装）；(2) SSH 连接时启用 X11 转发：`ssh -X 服务器`。或者在 `~/.ssh/config` 中加 `ForwardX11 yes`。
+
+### Q: ARM64 (aarch64) 服务器支持吗？
+A: 支持。Neovim 无法用 AppImage（只有 x86_64），脚本会自动通过 PPA 或包管理器安装新版。
 
 ---
 

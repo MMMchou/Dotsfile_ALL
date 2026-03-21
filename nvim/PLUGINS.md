@@ -48,11 +48,18 @@
 
 ## 2. 系统依赖
 
-这些是 Neovim 和插件需要的命令行工具，用 Homebrew 安装：
+这些是 Neovim 和插件需要的命令行工具：
 
 ```bash
+# macOS
 brew install fd ripgrep node
 pip install jupytext debugpy
+
+# Linux (Ubuntu/Debian)
+sudo apt install -y fd-find ripgrep nodejs npm
+pip install jupytext debugpy
+# 注意：Ubuntu 上 fd 叫 fd-find，需要创建软链接：
+# ln -sf $(which fdfind) ~/.local/bin/fd
 ```
 
 | 工具 | 作用 | 谁需要它 |
@@ -174,7 +181,7 @@ pip install jupytext debugpy
 
 | 插件 | 作用 | 说明 |
 |------|------|------|
-| **markdown-preview.nvim** | Markdown 实时预览 | 打开 .md 文件后输入 `:MarkdownPreview`，自动在浏览器里打开实时预览页面。前置条件：`brew install node` |
+| **markdown-preview.nvim** | Markdown 实时预览 | 打开 .md 文件后输入 `:MarkdownPreview`，自动在浏览器里打开实时预览页面。前置条件：macOS `brew install node` / Linux `sudo apt install nodejs npm` |
 
 ### 4.7 其他工具
 
@@ -657,7 +664,7 @@ pip install debugpy
 ## 10. 常见问题
 
 ### Q: 报错 "Cannot find any fd binary"？
-A: 安装 fd：`brew install fd`。这是虚拟环境选择器和文件搜索需要的工具。
+A: 安装 fd：macOS `brew install fd` / Linux `sudo apt install fd-find`（然后 `ln -sf $(which fdfind) ~/.local/bin/fd`）。这是虚拟环境选择器和文件搜索需要的工具。
 
 ### Q: 补全菜单不弹出来？
 A: 输入 `:LspInfo` 检查是否有 LSP 在运行。如果没有 pyright，输入 `:Mason` 搜索 pyright 安装。
@@ -669,7 +676,7 @@ A: 输入 `:ConformInfo` 查看当前文件用的格式化工具。Python 应该
 A: 确认 debugpy 已安装：`:Mason` 搜索 debugpy 安装。或者 `pip install debugpy`。
 
 ### Q: 虚拟环境没识别到？
-A: `空格+cv` 打开选择器。确认 fd 已安装（`brew install fd`），确认 venv / conda 在标准位置。
+A: `空格+cv` 打开选择器。确认 fd 已安装（macOS: `brew install fd` / Linux: `sudo apt install fd-find`），确认 venv / conda 在标准位置。
 
 ### Q: 打开 .ipynb 报错？
 A: 确认 jupytext 已安装且在 PATH 里：`which jupytext`。如果找不到，运行 `pip install jupytext`，然后重开终端。
