@@ -28,6 +28,10 @@ error() { echo -e "${RED}[ERROR]${NC} $1"; }
 DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
 BACKUP_DIR="$HOME/.dotfiles_backup/$(date +%Y%m%d_%H%M%S)"
 OS="$(uname -s)"
+IS_WSL=false
+if [[ "$OS" == "Linux" ]] && grep -qi microsoft /proc/version 2>/dev/null; then
+    IS_WSL=true
+fi
 
 # ============================================================
 # 1) 安装工具（自动区分 macOS / Linux）
@@ -102,7 +106,7 @@ install_tools_linux() {
     case "$PM" in
         apt)
             $need_sudo apt-get update -qq
-            $need_sudo apt-get install -y -qq tmux git ripgrep fd-find curl xclip nodejs npm
+            $need_sudo apt-get install -y -qq tmux git ripgrep fd-find curl xclip nodejs npm || warn "部分包安装失败，可忽略非核心包"
             # Ubuntu/Debian 的 fd 命令叫 fdfind，需要创建别名
             if command -v fdfind &>/dev/null && ! command -v fd &>/dev/null; then
                 mkdir -p "$HOME/.local/bin"
@@ -124,7 +128,7 @@ install_tools_linux() {
             fi
             ;;
         yum|dnf)
-            $need_sudo $PM install -y tmux git ripgrep xclip
+            $need_sudo $PM install -y tmux git ripgrep xclip || warn "部分包安装失败"
             # node（markdown-preview 等插件需要）
             $need_sudo $PM install -y nodejs npm 2>/dev/null || warn "nodejs 安装失败，markdown-preview 可能不可用"
             # fd
@@ -158,8 +162,7 @@ install_neovim_linux() {
             info "Neovim AppImage 安装成功"
         else
             info "FUSE 不可用，解压 AppImage..."
-            cd "$nvim_dir"
-            ./nvim.appimage --appimage-extract &>/dev/null
+            (cd "$nvim_dir" && ./nvim.appimage --appimage-extract &>/dev/null)
             ln -sf "$nvim_dir/squashfs-root/AppRun" "$nvim_dir/nvim"
             info "Neovim 解压安装成功"
         fi
@@ -211,6 +214,7 @@ backup_existing() {
     else
         files+=(
             "$HOME/.bashrc"
+            "$HOME/.zshrc"
             "$HOME/.shell_env"
         )
     fi
@@ -292,6 +296,29 @@ create_symlinks() {
             echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.bashrc"
             info "已在 .bashrc 中添加 ~/.local/bin 到 PATH"
         fi
+
+        # 如果用户使用 zsh，也配置 .zshrc
+        if [[ "$SHELL" == */zsh ]] || command -v zsh &>/dev/null; then
+            local zshrc="$HOME/.zshrc"
+            # 链接项目中的 .zshrc（已做 macOS/Linux 条件判断）
+            if [[ -f "$DOTFILES_DIR/shell/.zshrc" ]]; then
+                ln -sf "$DOTFILES_DIR/shell/.zshrc" "$zshrc"
+                info "已链接 .zshrc"
+            else
+                # 如果没有项目 .zshrc，手动确保加载 .shell_env
+                [[ -f "$zshrc" ]] || touch "$zshrc"
+                if ! grep -q 'shell_env' "$zshrc"; then
+                    echo '' >> "$zshrc"
+                    echo '# 加载共享环境变量' >> "$zshrc"
+                    echo '[ -f "$HOME/.shell_env" ] && . "$HOME/.shell_env"' >> "$zshrc"
+                    info "已在 .zshrc 中添加 .shell_env 加载"
+                fi
+                if ! grep -q '.local/bin' "$zshrc"; then
+                    echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$zshrc"
+                    info "已在 .zshrc 中添加 ~/.local/bin 到 PATH"
+                fi
+            fi
+        fi
     fi
 
     info "符号链接创建完成"
@@ -333,6 +360,9 @@ main() {
     echo "============================================"
     echo "  Dotsfile_ALL 一键安装"
     echo "  操作系统：$OS"
+    if [[ "$IS_WSL" == true ]]; then
+        echo "  环境：WSL (Windows Subsystem for Linux)"
+    fi
     echo "============================================"
     echo ""
 
@@ -368,14 +398,25 @@ main() {
         echo "  5. 进入 tmux 按 Control+a 再按 Shift+i 确认插件已安装"
         echo "  6. 打开 nvim 等待插件自动加载"
     else
-        info "后续操作（Linux）："
-        echo "  1. source ~/.bashrc  加载新配置"
-        echo "  2. 编辑 ~/.shell_env 填入你的环境变量（如果需要）"
-        echo "  3. 进入 tmux 按 Control+a 再按 Shift+i 确认插件已安装"
-        echo "  4. 打开 nvim 等待插件自动加载"
+        if [[ "$IS_WSL" == true ]]; then
+            info "后续操作（WSL）："
+            echo "  1. source ~/.bashrc  加载新配置"
+            echo "  2. 编辑 ~/.shell_env 填入你的环境变量（如果需要）"
+            echo "  3. 进入 tmux 按 Control+a 再按 Shift+i 确认插件已安装"
+            echo "  4. 打开 nvim 等待插件自动加载"
+            echo ""
+            echo "  提示：建议使用 Windows Terminal 获得最佳体验"
+            echo "  在 Windows Terminal 中可直接选择 Ubuntu 标签页进入 WSL"
+        else
+            info "后续操作（Linux）："
+            echo "  1. source ~/.bashrc  加载新配置"
+            echo "  2. 编辑 ~/.shell_env 填入你的环境变量（如果需要）"
+            echo "  3. 进入 tmux 按 Control+a 再按 Shift+i 确认插件已安装"
+            echo "  4. 打开 nvim 等待插件自动加载"
+        fi
         echo ""
-        echo "  注意：Linux 上没有 AeroSpace / OrbStack / Alacritty（这些是 macOS 专属）"
-        echo "  Linux 上直接用系统终端 + tmux + nvim 即可"
+        echo "  注意：Linux/WSL 上没有 AeroSpace / OrbStack / Alacritty（这些是 macOS 专属）"
+        echo "  直接用系统终端 + tmux + nvim 即可"
     fi
 
     echo ""

@@ -56,5 +56,6 @@ bindings = [
 ]
 
 [terminal]
-# 让 shell 以登录 shell 方式启动（自动加载 .bash_profile / .zshrc）
-shell = { program = "/opt/homebrew/bin/bash", args = ["--login"] }
+# Alacritty 默认使用系统登录 shell，无需手动指定
+# 如需指定（例如 macOS Homebrew bash），取消下面的注释：
+# shell = { program = "/opt/homebrew/bin/bash", args = ["--login"] }

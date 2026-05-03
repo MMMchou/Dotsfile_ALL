@@ -1,24 +1,26 @@
 # Dotsfile_ALL
 
-macOS + Linux 开发环境一键配置：tmux + Neovim(LazyVim) + AeroSpace(macOS) + OrbStack(macOS) + SSH + Claude Code。
+macOS + Linux + Windows(WSL) 开发环境一键配置：tmux + Neovim(LazyVim) + AeroSpace(macOS) + OrbStack(macOS) + SSH + Claude Code。
 
-克隆仓库、运行脚本，即可在 Mac 或 Linux 服务器上还原完整开发环境。
+克隆仓库、运行脚本，即可在 Mac、Linux 服务器或 Windows 上还原完整开发环境。
 
 ### 平台支持
 
-| 工具 | macOS | Linux |
-|------|:-----:|:-----:|
-| tmux | ✅ | ✅ |
-| Neovim + LazyVim | ✅ | ✅（自动安装 AppImage） |
-| AeroSpace 窗口管理 | ✅ | ❌ 不需要（服务器无 GUI） |
-| OrbStack (Docker/VM) | ✅ | ❌ 不需要（已经是 Linux） |
-| Alacritty 终端 | ✅ | ❌ 不需要（用系统终端） |
-| SSH 配置 | ✅ | ✅ |
-| Claude Code | ✅ | ✅ |
+| 工具 | macOS | Linux | Windows (WSL) |
+|------|:-----:|:-----:|:-------------:|
+| tmux | ✅ | ✅ | ✅ |
+| Neovim + LazyVim | ✅ | ✅（自动安装 AppImage） | ✅ |
+| AeroSpace 窗口管理 | ✅ | ❌ 不需要 | ❌ 不需要 |
+| OrbStack (Docker/VM) | ✅ | ❌ 不需要 | ❌ 不需要 |
+| Alacritty 终端 | ✅ | ❌ 用系统终端 | ❌ 用 Windows Terminal |
+| SSH 配置 | ✅ | ✅ | ✅ |
+| Claude Code | ✅ | ✅ | ✅ |
 
 ---
 
 ## 快速开始
+
+### macOS / Linux
 
 ```bash
 # 1. 克隆仓库
@@ -36,13 +38,36 @@ nano ~/.shell_env
 source ~/.shell_env
 ```
 
+### Windows
+
+Windows 通过 WSL (Windows Subsystem for Linux) 运行完整的 Linux 开发环境：
+
+```powershell
+# 1. 以管理员身份打开 PowerShell
+
+# 2. 克隆仓库（或下载 ZIP 解压）
+git clone https://github.com/MMMchou/Dotsfile_ALL.git $HOME\Dotsfile_ALL
+
+# 3. 运行 PowerShell 安装脚本
+cd $HOME\Dotsfile_ALL
+.\install.ps1
+
+# 脚本会自动：
+#   - 安装 WSL2 + Ubuntu（需要重启一次）
+#   - 在 WSL 内 clone 并运行 install.sh
+#   - 配置所有开发工具
+```
+
+安装完成后，打开 Windows Terminal → 选择 Ubuntu 标签页 → 输入 `tmux` 开始使用。
+
 ---
 
 ## 目录结构
 
 ```
 Dotsfile_ALL/
-├── install.sh                  # 一键安装脚本
+├── install.sh                  # 一键安装脚本（macOS / Linux）
+├── install.ps1                 # Windows 安装脚本（自动安装 WSL）
 ├── README.md                   # 本文档
 ├── .gitignore
 ├── shell/
@@ -254,6 +279,19 @@ source ~/.bashrc
 - tmux 自动适配剪贴板（macOS 用 pbcopy，Linux 用 xclip）
 - tmux 状态栏自动隐藏电池信息（Linux 服务器没有电池）
 
+### 在 Windows 上部署（通过 WSL）
+
+```powershell
+# 以管理员身份运行 PowerShell
+git clone https://github.com/MMMchou/Dotsfile_ALL.git $HOME\Dotsfile_ALL
+cd $HOME\Dotsfile_ALL
+.\install.ps1
+# 按提示操作，安装 WSL 后需重启一次，重启后再次运行脚本
+# 安装完成后：打开 Windows Terminal → Ubuntu → tmux
+```
+
+建议安装 [Windows Terminal](https://aka.ms/terminal) 获得最佳体验。
+
 ### Linux 部署注意事项
 
 | 问题 | 解决方案 |
@@ -379,6 +417,12 @@ A: 需要两个条件：(1) 服务器安装 `xclip`（脚本自动装）；(2) S
 
 ### Q: ARM64 (aarch64) 服务器支持吗？
 A: 支持。Neovim 无法用 AppImage（只有 x86_64），脚本会自动通过 PPA 或包管理器安装新版。
+
+### Q: Windows 上可以用吗？
+A: 可以，通过 WSL (Windows Subsystem for Linux) 实现。运行 `.\install.ps1` 会自动安装 WSL2 + Ubuntu，然后在 WSL 内配置完整开发环境。tmux 没有 Windows 原生版本，必须通过 WSL 使用。
+
+### Q: WSL 里复制的内容能粘贴到 Windows 吗？
+A: 可以。tmux 已自动适配 WSL 环境，使用 `clip.exe` 将内容写入 Windows 剪贴板。在 tmux 复制模式中按 `y` 复制后，直接在 Windows 中 `Ctrl+V` 粘贴。
 
 ---
 

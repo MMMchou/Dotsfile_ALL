@@ -35,6 +35,8 @@ Host *
     IdentityFile ~/.ssh/id_ed25519
 
     # macOS 钥匙串集成（记住密钥密码）
+    # IgnoreUnknown 让 Linux/WSL 忽略不认识的 macOS 专属选项，避免报错
+    IgnoreUnknown AddKeysToAgent,UseKeychain
     AddKeysToAgent yes
     UseKeychain yes
 
