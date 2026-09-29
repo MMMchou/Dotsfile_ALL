@@ -1,0 +1,28 @@
+# 自定义按键（加在默认按键前面，覆盖同名默认键）
+[[mgr.prepend_keymap]]
+on = "l"
+run = "plugin smart-enter"
+desc = "进入目录，或打开文件"
+
+[[mgr.prepend_keymap]]
+on = "<Enter>"
+run = "plugin smart-enter"
+desc = "进入目录，或打开文件"
+
+# 用 macOS 快速查看（空格预览那种）打开当前文件：Office / Keynote 等也能看
+[[mgr.prepend_keymap]]
+on = ["g", "q"]
+run = 'shell -- qlmanage -p "$0" >/dev/null 2>&1'
+desc = "macOS 快速查看"
+
+# 在访达里显示当前文件
+[[mgr.prepend_keymap]]
+on = ["g", "o"]
+run = 'shell -- open -R "$0"'
+desc = "在访达中显示"
+
+# 打开 lazygit
+[[mgr.prepend_keymap]]
+on = ["g", "i"]
+run = "shell --block -- lazygit"
+desc = "lazygit"

@@ -1,0 +1,21 @@
+id = "local.translate"
+name = "Translate"
+version = "0.1.0"
+min_herdr_version = "0.8.0"
+description = "Translate the text you just selected (clipboard) in a popup: English -> 简体中文, Chinese -> English"
+platforms = ["macos"]
+
+# 快捷键在 ~/.config/herdr/config.toml 里绑定（prefix+t）
+[[actions]]
+id = "now"
+title = "Translate: 翻译刚选中的文字"
+contexts = ["workspace", "tab", "pane"]
+command = ["sh", "-c", "exec \"$HERDR_BIN_PATH\" plugin pane open --plugin \"$HERDR_PLUGIN_ID\" --entrypoint popover --focus"]
+
+[[panes]]
+id = "popover"
+title = "翻译"
+placement = "popup"
+width = "60%"
+height = "50%"
+command = ["sh", "-c", "exec /usr/bin/env python3 \"$HERDR_PLUGIN_ROOT/translate.py\""]

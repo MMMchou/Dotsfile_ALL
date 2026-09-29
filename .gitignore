@@ -1,8 +1,8 @@
 # 含密钥/敏感信息的文件（绝对不上传）
 shell/.shell_env
 
-# nvim 插件锁定文件（每台机器不同）
-nvim/lazy-lock.json
+# 注意：nvim/lazy-lock.json 要进仓库 —— 锁定插件版本，换机器装出来的版本和这台一样
+# （不锁的话会装最新版，新版 nvim-treesitter 需要 Neovim 0.12，老版本 nvim 会报错）
 
 # nvim 插件目录（由 lazy.nvim 自动管理）
 nvim/plugin/
@@ -20,3 +20,13 @@ ssh/id_*
 ssh/*.pem
 ssh/known_hosts
 ssh/sockets/
+
+# 每台机器自己的配置（install.sh 生成）
+ghostty/config.local
+
+# 编辑器 / AI 工具的本地文件
+.qoder/
+__pycache__/
+
+# 每台机器自己选的 starship 样式（starship_style 写入）
+starship/current

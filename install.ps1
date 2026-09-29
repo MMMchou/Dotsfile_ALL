@@ -7,7 +7,8 @@
 # 功能：
 #   1. 自动检测并安装 WSL2 + Ubuntu
 #   2. 在 WSL 内 clone 并运行 install.sh 完成全部配置
-#   3. 提示安装 Windows Terminal（可选）
+#   3. 安装 WezTerm 终端 + Hack Nerd Font，并复制 WezTerm 配置
+#      （WezTerm 支持终端图片，nvim / yazi 能预览图片；Windows Terminal 不支持）
 #
 # 注意：tmux 没有 Windows 原生版本，必须通过 WSL 使用
 # ============================================================
@@ -144,27 +145,59 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 # ============================================================
-# 3) Windows Terminal 提示
+# 3) WezTerm + Nerd Font（Windows 这边的终端）
 # ============================================================
+Write-Info "安装 WezTerm 和 Hack Nerd Font..."
+if (Get-Command winget -ErrorAction SilentlyContinue) {
+    winget install --id wez.wezterm -e --accept-source-agreements --accept-package-agreements --silent 2>&1 | Out-Null
+} else {
+    Write-Warn "没有 winget，请手动安装 WezTerm: https://wezfurlong.org/wezterm/"
+}
+
+# Hack Nerd Font：从 Nerd Fonts 官方 release 下载，只装给当前用户（不需要管理员）
+$fontDir = Join-Path $env:LOCALAPPDATA "Microsoft\Windows\Fonts"
+if (Get-ChildItem $fontDir -Filter "HackNerdFont*" -ErrorAction SilentlyContinue) {
+    Write-Info "Hack Nerd Font 已安装，跳过"
+} else {
+    try {
+        $zip = Join-Path $env:TEMP "Hack.zip"
+        $tmp = Join-Path $env:TEMP "HackNF"
+        Invoke-WebRequest -Uri "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip" -OutFile $zip -UseBasicParsing
+        Expand-Archive $zip -DestinationPath $tmp -Force
+        New-Item -ItemType Directory -Force -Path $fontDir | Out-Null
+        $reg = "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\Fonts"
+        Get-ChildItem $tmp -Filter "*.ttf" | ForEach-Object {
+            Copy-Item $_.FullName $fontDir -Force
+            New-ItemProperty -Path $reg -Name "$($_.BaseName) (TrueType)" -Value (Join-Path $fontDir $_.Name) -PropertyType String -Force | Out-Null
+        }
+        Remove-Item $zip, $tmp -Recurse -Force
+        Write-Info "Hack Nerd Font 安装完成（新打开的程序才能看到）"
+    } catch {
+        Write-Warn "字体安装失败，请手动下载 Hack Nerd Font: https://www.nerdfonts.com/font-downloads"
+    }
+}
+
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$weztermSrc = Join-Path $scriptDir "wezterm\wezterm.lua"
+$weztermDst = Join-Path $HOME ".wezterm.lua"
+if (Test-Path $weztermSrc) {
+    if (Test-Path $weztermDst) { Copy-Item $weztermDst "$weztermDst.bak" -Force }
+    Copy-Item $weztermSrc $weztermDst -Force
+    Write-Info "已复制 WezTerm 配置到 $weztermDst"
+}
+
 Write-Host ""
 Write-Info "============================================"
 Write-Info "  安装完成！"
 Write-Info "============================================"
 Write-Host ""
 Write-Info "后续操作："
-Write-Host "  1. 打开 Windows Terminal (推荐) 或 PowerShell"
-Write-Host "  2. 输入 wsl 进入 Ubuntu 环境"
-Write-Host "  3. 输入 tmux 开始使用"
-Write-Host "  4. 输入 nvim 打开编辑器"
+Write-Host "  1. 打开 WezTerm（默认直接进入 WSL Ubuntu）"
+Write-Host "  2. 输入 herdr 开始使用（或 tmux）"
+Write-Host "  3. 输入 nvim 打开编辑器，y 打开 yazi 文件管理器"
+Write-Host "  4. 编辑 ~/.shell_env 填入 API Key；代理端口不同的话在 ~/.shell_env 里设 PROXY_HTTP_PORT"
 Write-Host ""
-
-# 检查 Windows Terminal
-$wtInstalled = Get-AppxPackage -Name "Microsoft.WindowsTerminal" -ErrorAction SilentlyContinue
-if (-not $wtInstalled) {
-    Write-Warn "建议安装 Windows Terminal 以获得更好的终端体验"
-    Write-Host "  安装方式: 打开 Microsoft Store 搜索 'Windows Terminal'"
-    Write-Host "  或运行: winget install Microsoft.WindowsTerminal"
-}
-
+Write-Host "  WSL 里访问 Windows 上的代理：WSL 2 需开启镜像网络（%USERPROFILE%\.wslconfig 加 [wsl2] networkingMode=mirrored）"
+Write-Host "  macOS 专属功能（AeroSpace / 输入法记忆 / 不休眠 / 翻译插件）在 Windows 上没有"
 Write-Host ""
 Read-Host "按回车退出"

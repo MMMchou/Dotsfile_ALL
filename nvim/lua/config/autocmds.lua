@@ -36,3 +36,18 @@ autocmd("TextYankPost", {
     vim.highlight.on_yank({ higroup = "IncSearch", timeout = 200 })
   end,
 })
+
+-- 打开的图片 / PDF 文件：按 q 或 Esc 直接关闭（和关弹窗一样）
+-- 图片在 nvim 里是当作一个普通文件标签打开的，默认 q/Esc 不会关它。
+-- 关闭后窗口布局不变（文件树还在），用的是 Snacks.bufdelete。
+autocmd("FileType", {
+  pattern = "image",
+  callback = function(ev)
+    local close = function()
+      Snacks.bufdelete({ buf = ev.buf })
+      vim.cmd("redraw!") -- 顺便清掉可能残留在屏幕上的图片
+    end
+    vim.keymap.set("n", "q", close, { buffer = ev.buf, desc = "关闭图片" })
+    vim.keymap.set("n", "<Esc>", close, { buffer = ev.buf, desc = "关闭图片" })
+  end,
+})

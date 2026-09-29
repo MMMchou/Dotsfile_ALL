@@ -69,3 +69,14 @@ map("v", "p", '"_dP', { desc = "粘贴但不覆盖寄存器" })
 -- ]d / [d         下一个/上一个诊断
 -- gcc             注释/取消注释当前行
 -- gc              注释/取消注释选中区域
+
+-- ===================== 预览 / 系统打开 =====================
+-- <leader>fo  用系统默认程序打开当前文件（图片→预览，PDF→预览，docx→WPS 等）
+-- <leader>fq  用 macOS 快速查看（Quick Look）弹窗预览当前文件，按空格/Esc 关闭
+-- 光标放在链接或路径上按 gx 也能用系统打开（LazyVim 自带）
+map("n", "<leader>fo", function()
+  vim.ui.open(vim.fn.expand("%:p"))
+end, { desc = "用系统程序打开当前文件" })
+map("n", "<leader>fq", function()
+  vim.system({ "qlmanage", "-p", vim.fn.expand("%:p") }, { stdout = false, stderr = false })
+end, { desc = "macOS 快速查看当前文件" })

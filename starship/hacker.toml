@@ -1,0 +1,144 @@
+# ============================================================
+# Starship 提示符：hacker（catppuccin mocha 配色，终端黑客风）
+# 切换样式：starship_style hacker | minimal | pure | brackets | powerline
+#
+# 效果大致是（右端时间自动对齐到行尾）：
+#   ╭─[ mac@MacBook]─[ ~/projects/foo]─[ main !?]─[ 3.12]─[ 3s 1]──────[ 10:52]
+#   ╰─λ
+# 没有内容的段（不在 git 仓库、没有 Python 等）会自动隐藏。
+# 上一条命令失败时：λ 变红，并显示退出码。
+# ============================================================
+
+palette = "catppuccin_mocha"
+add_newline = true
+
+format = """
+[╭─](overlay0)\
+[\\[](overlay0)$os$username[@](overlay0)$hostname[\\]](overlay0)\
+[─\\[](overlay0)$directory[\\]](overlay0)\
+([─\\[](overlay0)$git_branch$git_state$git_status[\\]](overlay0))\
+([─\\[](overlay0)$python$nodejs$rust$golang$docker_context[\\]](overlay0))\
+([─\\[](overlay0)$cmd_duration$status[\\]](overlay0))\
+$fill\
+[\\[](overlay0)$time[\\]](overlay0)
+[╰─](overlay0)$character"""
+
+[os]
+disabled = false
+style = "bold text"
+format = "[$symbol]($style)"
+[os.symbols]
+Macos = " "
+
+[username]
+show_always = true
+style_user = "bold mauve"
+style_root = "bold red"
+format = "[$user]($style)"
+
+[hostname]
+ssh_only = false
+style = "bold pink"
+format = "[$hostname]($style)"
+trim_at = "."
+# 主机名太长，显示成 Ashan（想看真实主机名就删掉这行）
+aliases = { "macdeMacBook-Pro-3" = "Ashan" }
+
+[directory]
+style = "bold blue"
+truncation_length = 4
+truncation_symbol = "…/"
+read_only = " "
+read_only_style = "red"
+format = "[ $path]($style)[$read_only]($read_only_style)"
+
+[git_branch]
+symbol = " "
+style = "bold peach"
+format = "[$symbol$branch]($style)"
+
+[git_state]
+style = "bold yellow"
+format = "[ $state( $progress_current/$progress_total)]($style)"
+
+[git_status]
+style = "bold red"
+format = "([ $all_status$ahead_behind]($style))"
+
+[python]
+symbol = " "
+style = "bold yellow"
+format = '[${symbol}${version}( \($virtualenv\))]($style)'
+
+[nodejs]
+symbol = " "
+style = "bold green"
+format = "[$symbol$version]($style)"
+
+[rust]
+symbol = " "
+style = "bold peach"
+format = "[$symbol$version]($style)"
+
+[golang]
+symbol = " "
+style = "bold sapphire"
+format = "[$symbol$version]($style)"
+
+[docker_context]
+symbol = " "
+style = "bold blue"
+format = "[$symbol$context]($style)"
+
+[cmd_duration]
+min_time = 2000
+style = "bold yellow"
+format = "[ $duration]($style)"
+
+[status]
+disabled = false
+style = "bold red"
+format = "[ $status]($style)"
+
+[fill]
+symbol = "─"
+style = "overlay0"
+
+[time]
+disabled = false
+time_format = "%H:%M"
+style = "bold overlay1"
+format = "[ $time]($style)"
+
+[character]
+success_symbol = "[λ](bold green)"
+error_symbol = "[λ](bold red)"
+vimcmd_symbol = "[λ](bold lavender)"
+
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+flamingo = "#f2cdcd"
+pink = "#f5c2e7"
+mauve = "#cba6f7"
+red = "#f38ba8"
+maroon = "#eba0ac"
+peach = "#fab387"
+yellow = "#f9e2af"
+green = "#a6e3a1"
+teal = "#94e2d5"
+sky = "#89dceb"
+sapphire = "#74c7ec"
+blue = "#89b4fa"
+lavender = "#b4befe"
+text = "#cdd6f4"
+subtext1 = "#bac2de"
+subtext0 = "#a6adc8"
+overlay2 = "#9399b2"
+overlay1 = "#7f849c"
+overlay0 = "#6c7086"
+surface2 = "#585b70"
+surface1 = "#45475a"
+surface0 = "#313244"
+base = "#1e1e2e"
+mantle = "#181825"
+crust = "#11111b"

@@ -1,20 +1,29 @@
 # Dotsfile_ALL
 
-macOS + Linux + Windows(WSL) 开发环境一键配置：tmux + Neovim(LazyVim) + AeroSpace(macOS) + OrbStack(macOS) + SSH + Claude Code。
+macOS + Linux + Windows(WSL) 开发环境一键配置：
+Ghostty / WezTerm + herdr（AI agent 多路复用）+ Neovim(LazyVim) + yazi + starship + lazygit/delta + 一堆命令行工具，外加 tmux / AeroSpace / OrbStack / SSH / Claude Code。
+全套 Catppuccin Mocha 配色，终端里能直接预览图片 / PDF / 视频 / Mermaid / LaTeX。
 
-克隆仓库、运行脚本，即可在 Mac、Linux 服务器或 Windows 上还原完整开发环境。
+克隆仓库、运行脚本，即可在 Mac、Linux 或 Windows 上还原完整开发环境。
 
 ### 平台支持
 
-| 工具 | macOS | Linux | Windows (WSL) |
+| 功能 | macOS | Linux | Windows (WSL) |
 |------|:-----:|:-----:|:-------------:|
+| 终端 | Ghostty | Ghostty（手动装）/ 系统终端 | WezTerm（自动装） |
+| 终端里预览图片（nvim / yazi） | ✅ | ✅ 需 Ghostty / Kitty | ⚠️ WezTerm，未实测 |
+| herdr + 插件（无缝移动 / 截图粘贴） | ✅ | ✅ | ✅ |
+| herdr 输入法记忆 / 不休眠 / 翻译 | ✅ | ❌ macOS 专属 | ❌ macOS 专属 |
+| Neovim + LazyVim（插件版本锁定） | ✅ | ✅ | ✅ |
+| yazi / starship / eza / bat / zoxide / fzf / lazygit / delta | ✅ | ✅（Homebrew on Linux） | ✅（WSL 里的 Homebrew） |
+| 代理自动检测（proxy_on / proxy_off） | ✅ | ✅ | ✅ 端口可能不同 |
 | tmux | ✅ | ✅ | ✅ |
-| Neovim + LazyVim | ✅ | ✅（自动安装 AppImage） | ✅ |
-| AeroSpace 窗口管理 | ✅ | ❌ 不需要 | ❌ 不需要 |
-| OrbStack (Docker/VM) | ✅ | ❌ 不需要 | ❌ 不需要 |
-| Alacritty 终端 | ✅ | ❌ 用系统终端 | ❌ 用 Windows Terminal |
-| SSH 配置 | ✅ | ✅ | ✅ |
-| Claude Code | ✅ | ✅ | ✅ |
+| AeroSpace 窗口管理 / OrbStack | ✅ | ❌ | ❌ |
+| Hack Nerd Font | ✅ 自动 | ✅ 自动 | ✅ 自动（装在 Windows） |
+| SSH 配置模板 / Claude Code | ✅ | ✅ | ✅ |
+
+> Linux 需要用**普通用户**运行（Homebrew 不支持 root）。root 下只会装 tmux / neovim / git 等基础工具。
+> 只想链接配置、不装软件：`./install.sh --no-tools`
 
 ---
 
@@ -58,7 +67,7 @@ cd $HOME\Dotsfile_ALL
 #   - 配置所有开发工具
 ```
 
-安装完成后，打开 Windows Terminal → 选择 Ubuntu 标签页 → 输入 `tmux` 开始使用。
+安装完成后，打开 WezTerm（默认进入 WSL Ubuntu）→ 输入 `herdr` 开始使用（tmux 也还在）。
 
 ---
 
@@ -88,6 +97,16 @@ Dotsfile_ALL/
 │       └── plugins/
 │           ├── custom.lua      # 自定义插件（改这个）
 │           └── example.lua     # 官方示例（仅参考）
+├── ghostty/config              # Ghostty 终端（macOS / Linux）
+├── wezterm/wezterm.lua         # WezTerm 终端（Windows，install.ps1 复制到 ~/.wezterm.lua）
+├── herdr/
+│   ├── config.toml             # herdr 配置（快捷键、输入法、通知、插件快捷键）
+│   └── plugins/                # 自己写的 herdr 插件（kiro-resume、translate）
+├── yazi/                       # yazi 文件管理器（主题 + 插件锁定在 package.toml）
+├── starship/                   # 提示符样式：hacker / minimal / pure / brackets / powerline
+├── lazygit/config.yml          # lazygit（catppuccin + delta）
+├── delta/                      # git diff 配色
+├── shell/.shell_tools          # 命令行工具别名 + 代理自动检测（全平台通用）
 ├── aerospace/
 │   └── aerospace.toml          # AeroSpace 窗口管理器配置
 ├── ssh/
@@ -108,6 +127,33 @@ Dotsfile_ALL/
 | **OrbStack** | Docker + Linux VM | 比 Docker Desktop 更快更轻，还能直接跑 Linux 虚拟机 |
 | **SSH** | 远程连接 | 连接远程服务器，配置好后一条命令直连 |
 | **Claude Code** | AI 编程助手 | 终端里的 AI 助手，帮你写代码、debug |
+
+---
+
+## 终端全家桶速查（Ghostty + herdr + nvim + yazi）
+
+每天：打开 Ghostty（Windows 打开 WezTerm）→ 输入 `herdr`。
+
+| 在哪 | 操作 | 按键 / 命令 |
+|------|------|-------------|
+| herdr | prefix | `Ctrl+a` |
+| herdr | 在 nvim 分屏和 pane 之间移动 | `Ctrl+h/j/k/l` |
+| herdr | 截图贴给 AI | 截图到剪贴板（Mac `Cmd+Ctrl+Shift+4`，Windows `Win+Shift+S`）→ `Ctrl+a i` |
+| herdr | 翻译选中文字（macOS） | 鼠标选中 → `Ctrl+a t` |
+| herdr | 跳到发通知的 pane | `Ctrl+a o` |
+| nvim | 看图片 / PDF | 直接打开，或文件树里选中；`q` 关闭 |
+| nvim | yazi 浮窗 | `空格 f y` / `空格 f Y` |
+| nvim | 系统程序打开 / 快速查看 | `空格 f o` / `空格 f q` |
+| nvim | precognition 按键提示开关 | `空格 u P` |
+| 终端 | 文件管理器（带预览） | `y` |
+| 终端 | 跳到去过的目录 | `z 片段` / `zi` |
+| 终端 | 模糊搜历史 / 文件 / 目录 | `Ctrl+r` / `Ctrl+t` / `Alt+c` |
+| 终端 | 图片 / Markdown | `img a.png` / `md README.md` |
+| 终端 | 换提示符样式 | `starship_style hacker\|minimal\|pure\|brackets\|powerline` |
+| 终端 | 代理 | `proxy_status` / `proxy_on` / `proxy_off` |
+| git | 图形界面 / diff | `lazygit`（nvim 里 `空格 g g`）/ `git diff` |
+
+代理端口默认 `127.0.0.1:33210`，别的机器端口不同就在 `~/.shell_env` 里加 `export PROXY_HTTP_PORT=7897`（按你的代理软件改）。
 
 ---
 
@@ -287,7 +333,7 @@ git clone https://github.com/MMMchou/Dotsfile_ALL.git $HOME\Dotsfile_ALL
 cd $HOME\Dotsfile_ALL
 .\install.ps1
 # 按提示操作，安装 WSL 后需重启一次，重启后再次运行脚本
-# 安装完成后：打开 Windows Terminal → Ubuntu → tmux
+# 安装完成后：打开 WezTerm（默认进入 WSL Ubuntu）→ herdr
 ```
 
 建议安装 [Windows Terminal](https://aka.ms/terminal) 获得最佳体验。

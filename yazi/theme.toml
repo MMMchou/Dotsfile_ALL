@@ -1,0 +1,4 @@
+# 主题：catppuccin mocha（和 nvim / herdr / Ghostty 一致）
+[flavor]
+dark = "catppuccin-mocha"
+light = "catppuccin-mocha"

@@ -44,10 +44,10 @@ lines = 36
 # 字体大小
 size = 14.0
 
-# 如果你装了 Nerd Font，取消下面的注释（解决图标显示方块的问题）
-# [font.normal]
-# family = "JetBrainsMono Nerd Font"
-# style = "Regular"
+# Nerd Font（LazyVim 图标显示必需）
+[font.normal]
+family = "Hack Nerd Font Mono"
+style = "Regular"
 
 [keyboard]
 # Command+N 新建窗口
@@ -56,6 +56,5 @@ bindings = [
 ]
 
 [terminal]
-# Alacritty 默认使用系统登录 shell，无需手动指定
-# 如需指定（例如 macOS Homebrew bash），取消下面的注释：
-# shell = { program = "/opt/homebrew/bin/bash", args = ["--login"] }
+# 让 shell 以登录 shell 方式启动（自动加载 .bash_profile / .zshrc）
+shell = { program = "/opt/homebrew/bin/bash", args = ["--login"] }

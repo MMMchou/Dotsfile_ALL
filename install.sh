@@ -9,8 +9,13 @@
 #   ./install.sh
 #
 # 自动检测操作系统：
-#   macOS  → 用 Homebrew 安装，包含 AeroSpace / OrbStack / Alacritty
-#   Linux  → 用 apt / yum 安装，只装 tmux / neovim / git 等命令行工具
+#   macOS       → Homebrew 安装全部工具 + Ghostty / AeroSpace / OrbStack / Alacritty / Nerd Font
+#   Linux / WSL → 系统包管理器装基础依赖，再用 Homebrew on Linux 装同一套命令行工具
+#                 （herdr / yazi / starship / eza / zoxide … apt 里没有或太旧）
+#                 root 用户不能用 Homebrew，会退回只装 tmux / neovim / git 等基础工具
+#
+# 可选参数：
+#   --no-tools   只链接配置文件，不安装任何软件
 # ============================================================
 
 set -e
@@ -33,6 +38,49 @@ if [[ "$OS" == "Linux" ]] && grep -qi microsoft /proc/version 2>/dev/null; then
     IS_WSL=true
 fi
 
+
+# ============================================================
+# 两个平台共用的 Homebrew 包
+# ============================================================
+COMMON_FORMULAE=(
+    # 基础
+    bash bash-completion@2 coreutils git tmux neovim node jq
+    # 搜索 / 文件
+    ripgrep fd fzf bat eza zoxide yazi sevenzip
+    # git
+    lazygit git-delta
+    # 预览：图片 / PDF / 视频 / SVG / Markdown / LaTeX
+    imagemagick ghostscript poppler ffmpeg resvg glow tectonic
+    # 外观 / 杂项
+    starship fastfetch btop
+    # AI agent 多路复用
+    herdr
+)
+
+brew_install_list() {
+    local pkg
+    for pkg in "$@"; do
+        if brew list "$pkg" &>/dev/null; then
+            info "$pkg 已安装，跳过"
+        else
+            info "安装 $pkg..."
+            HOMEBREW_NO_AUTO_UPDATE=1 brew install "$pkg" || warn "$pkg 安装失败，稍后可手动 brew install $pkg"
+        fi
+    done
+}
+
+install_npm_tools() {
+    command -v npm &>/dev/null || { warn "没有 npm，跳过 mermaid-cli"; return; }
+    if command -v mmdc &>/dev/null; then
+        info "mermaid-cli 已安装，跳过"
+    else
+        info "安装 mermaid-cli（nvim 里渲染 Mermaid 图）..."
+        # 只下载无界面浏览器，不下载完整 Chrome
+        PUPPETEER_SKIP_DOWNLOAD=true npm install -g @mermaid-js/mermaid-cli || warn "mermaid-cli 安装失败，可忽略"
+        npx --yes puppeteer browsers install chrome-headless-shell >/dev/null 2>&1 || true
+    fi
+}
+
 # ============================================================
 # 1) 安装工具（自动区分 macOS / Linux）
 # ============================================================
@@ -48,24 +96,17 @@ install_tools_macos() {
         fi
     fi
 
-    local formulae=(tmux neovim git ripgrep fd)
-    local casks=(orbstack)
+    local formulae=("${COMMON_FORMULAE[@]}" terminal-notifier pngpaste)
+    local casks=(ghostty orbstack alacritty font-hack-nerd-font)
 
-    for pkg in "${formulae[@]}"; do
-        if brew list "$pkg" &>/dev/null; then
-            info "$pkg 已安装，跳过"
-        else
-            info "安装 $pkg..."
-            HOMEBREW_NO_AUTO_UPDATE=1 brew install "$pkg"
-        fi
-    done
+    brew_install_list "${formulae[@]}"
 
     for pkg in "${casks[@]}"; do
         if brew list --cask "$pkg" &>/dev/null; then
             info "$pkg 已安装，跳过"
         else
             info "安装 $pkg..."
-            HOMEBREW_NO_AUTO_UPDATE=1 brew install --cask "$pkg"
+            HOMEBREW_NO_AUTO_UPDATE=1 brew install --cask "$pkg" || warn "$pkg 安装失败（如果已从官网装过可忽略）"
         fi
     done
 
@@ -75,9 +116,11 @@ install_tools_macos() {
         info "安装 AeroSpace..."
         HOMEBREW_NO_AUTO_UPDATE=1 brew install --cask nikitabobko/tap/aerospace
     fi
+
+    install_npm_tools
 }
 
-install_tools_linux() {
+install_tools_linux_basic() {
     # 检测包管理器
     if command -v apt-get &>/dev/null; then
         local PM="apt"
@@ -146,6 +189,72 @@ install_tools_linux() {
     esac
 }
 
+# Linux / WSL：基础依赖用系统包管理器，其余用 Homebrew on Linux（和 macOS 同一套版本）
+install_tools_linux() {
+    if [[ "$(id -u)" -eq 0 ]]; then
+        warn "当前是 root 用户，Homebrew 不支持 root，只安装基础工具（tmux / neovim / git …）"
+        warn "想要完整环境：新建普通用户后用该用户重新运行 ./install.sh"
+        install_tools_linux_basic
+        return
+    fi
+
+    info "安装基础依赖（编译工具 / curl / 剪贴板等，需要 sudo 密码）..."
+    if command -v apt-get &>/dev/null; then
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq build-essential procps curl file git xclip wl-clipboard unzip || warn "部分基础包安装失败"
+    elif command -v dnf &>/dev/null; then
+        sudo dnf group install -y development-tools 2>/dev/null || sudo dnf groupinstall -y 'Development Tools' || true
+        sudo dnf install -y procps-ng curl file git xclip wl-clipboard || warn "部分基础包安装失败"
+    elif command -v yum &>/dev/null; then
+        sudo yum groupinstall -y 'Development Tools' || true
+        sudo yum install -y procps-ng curl file git xclip || warn "部分基础包安装失败"
+    elif command -v pacman &>/dev/null; then
+        sudo pacman -Sy --noconfirm --needed base-devel procps-ng curl file git xclip wl-clipboard || warn "部分基础包安装失败"
+    fi
+
+    if ! command -v brew &>/dev/null; then
+        for b in /home/linuxbrew/.linuxbrew/bin/brew "$HOME/.linuxbrew/bin/brew"; do
+            [[ -x "$b" ]] && eval "$("$b" shellenv)" && break
+        done
+    fi
+    if ! command -v brew &>/dev/null; then
+        info "安装 Homebrew on Linux..."
+        NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || {
+            warn "Homebrew 安装失败，退回只装基础工具"
+            install_tools_linux_basic
+            return
+        }
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    fi
+
+    brew_install_list "${COMMON_FORMULAE[@]}"
+    install_npm_tools
+
+    # Ghostty 不在 Homebrew for Linux 里（WSL 下终端在 Windows 那边，不需要）
+    if [[ "$IS_WSL" != true ]] && ! command -v ghostty &>/dev/null; then
+        warn "Linux 桌面想用 Ghostty（图片预览）：见 https://ghostty.org/docs/install/binary 按发行版安装"
+    fi
+    install_nerd_font_linux
+}
+
+install_nerd_font_linux() {
+    if [[ "$IS_WSL" == true ]]; then
+        warn "WSL：Nerd Font 要装在 Windows 那边（install.ps1 会装），WSL 里不需要"
+        return
+    fi
+    local font_dir="$HOME/.local/share/fonts"
+    if ls "$font_dir"/HackNerdFont* &>/dev/null; then
+        info "Hack Nerd Font 已安装，跳过"
+        return
+    fi
+    info "安装 Hack Nerd Font..."
+    mkdir -p "$font_dir"
+    curl -fsSL -o /tmp/Hack.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip \
+        && unzip -oq /tmp/Hack.zip -d "$font_dir" && rm -f /tmp/Hack.zip \
+        && { command -v fc-cache &>/dev/null && fc-cache -f "$font_dir" >/dev/null; info "字体已安装"; } \
+        || warn "字体安装失败，可手动下载 https://www.nerdfonts.com"
+}
+
 install_neovim_linux() {
     local nvim_dir="$HOME/.local/bin"
     mkdir -p "$nvim_dir"
@@ -188,6 +297,23 @@ install_neovim_linux() {
     fi
 }
 
+lazygit_config_dir() {
+    if [[ "$OS" == "Darwin" ]]; then
+        echo "$HOME/Library/Application Support/lazygit"
+    else
+        echo "${XDG_CONFIG_HOME:-$HOME/.config}/lazygit"
+    fi
+}
+
+# 把仓库里的文件/目录链接到目标位置（目标是普通目录时先删掉，已备份过）
+link() {
+    local src="$1" dst="$2"
+    [[ -e "$src" ]] || { warn "仓库里没有 $src，跳过"; return; }
+    mkdir -p "$(dirname "$dst")"
+    if [[ -d "$dst" && ! -L "$dst" ]]; then rm -rf "$dst"; fi
+    ln -sfn "$src" "$dst"
+}
+
 # ============================================================
 # 2) 备份已有配置
 # ============================================================
@@ -199,6 +325,13 @@ backup_existing() {
         "$HOME/.tmux.conf"
         "$HOME/.config/nvim"
         "$HOME/.ssh/config"
+        "$HOME/.shell_tools"
+        "$HOME/.config/ghostty/config"
+        "$HOME/.config/herdr/config.toml"
+        "$HOME/.config/yazi"
+        "$HOME/.config/starship"
+        "$HOME/.config/delta"
+        "$(lazygit_config_dir)/config.yml"
     )
 
     # macOS 特有的配置
@@ -206,6 +339,7 @@ backup_existing() {
         files+=(
             "$HOME/.shell_env"
             "$HOME/.bash_profile"
+            "$HOME/.bashrc"
             "$HOME/.zshrc"
             "$HOME/.config/aerospace/aerospace.toml"
             "$HOME/.config/alacritty/alacritty.toml"
@@ -251,9 +385,30 @@ create_symlinks() {
     ln -sf "$DOTFILES_DIR/tmux/.tmux.conf" "$HOME/.tmux.conf"
 
     # nvim
-    mkdir -p "$HOME/.config"
-    rm -rf "$HOME/.config/nvim"
-    ln -sf "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
+    link "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
+
+    # 命令行工具配置（macOS / Linux 通用）
+    link "$DOTFILES_DIR/shell/.shell_tools"  "$HOME/.shell_tools"
+    link "$DOTFILES_DIR/herdr/config.toml"   "$HOME/.config/herdr/config.toml"
+    link "$DOTFILES_DIR/yazi"                "$HOME/.config/yazi"
+    link "$DOTFILES_DIR/starship"            "$HOME/.config/starship"
+    link "$DOTFILES_DIR/delta"               "$HOME/.config/delta"
+    link "$DOTFILES_DIR/lazygit/config.yml"  "$(lazygit_config_dir)/config.yml"
+    [[ -f "$HOME/.config/starship/current" ]] || echo hacker > "$DOTFILES_DIR/starship/current"
+
+    # Ghostty（WSL 不需要：终端在 Windows 那边）
+    if [[ "$IS_WSL" != true ]]; then
+        link "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
+        local ghostty_local="$HOME/.config/ghostty/config.local"
+        if [[ ! -f "$ghostty_local" ]]; then
+            if [[ "$OS" == "Darwin" ]]; then
+                echo "command = $(brew --prefix 2>/dev/null || echo /opt/homebrew)/bin/bash --login" > "$ghostty_local"
+            else
+                echo "# 这台机器自己的 Ghostty 设置（不进仓库）" > "$ghostty_local"
+            fi
+            info "已生成 $ghostty_local"
+        fi
+    fi
 
     # ssh
     mkdir -p "$HOME/.ssh/sockets"
@@ -267,6 +422,7 @@ create_symlinks() {
     if [[ "$OS" == "Darwin" ]]; then
         # shell 配置
         [[ -f "$DOTFILES_DIR/shell/.bash_profile" ]] && ln -sf "$DOTFILES_DIR/shell/.bash_profile" "$HOME/.bash_profile"
+        [[ -f "$DOTFILES_DIR/shell/.bashrc" ]] && ln -sf "$DOTFILES_DIR/shell/.bashrc" "$HOME/.bashrc"
         [[ -f "$DOTFILES_DIR/shell/.zshrc" ]] && ln -sf "$DOTFILES_DIR/shell/.zshrc" "$HOME/.zshrc"
 
         # alacritty
@@ -277,9 +433,12 @@ create_symlinks() {
         mkdir -p "$HOME/.config/aerospace"
         [[ -f "$DOTFILES_DIR/aerospace/aerospace.toml" ]] && ln -sf "$DOTFILES_DIR/aerospace/aerospace.toml" "$HOME/.config/aerospace/aerospace.toml"
 
-        # claude
-        mkdir -p "$HOME/.claude"
-        [[ -f "$DOTFILES_DIR/claude/settings.json" ]] && ln -sf "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
+    fi
+
+    # claude：settings.json 复制而不是链接（herdr 会往里写本机路径的 hook）
+    mkdir -p "$HOME/.claude"
+    if [[ ! -f "$HOME/.claude/settings.json" && -f "$DOTFILES_DIR/claude/settings.json" ]]; then
+        cp "$DOTFILES_DIR/claude/settings.json" "$HOME/.claude/settings.json"
     fi
 
     # ---- Linux 特有 ----
@@ -290,6 +449,11 @@ create_symlinks() {
             echo '# 加载共享环境变量' >> "$HOME/.bashrc"
             echo '[ -f "$HOME/.shell_env" ] && . "$HOME/.shell_env"' >> "$HOME/.bashrc"
             info "已在 .bashrc 中添加 .shell_env 加载"
+        fi
+        # 加载命令行工具 + 代理检测（~/.shell_tools 里自己判断平台）
+        if [[ -f "$HOME/.bashrc" ]] && ! grep -q 'shell_tools' "$HOME/.bashrc"; then
+            echo '[ -f "$HOME/.shell_tools" ] && . "$HOME/.shell_tools"' >> "$HOME/.bashrc"
+            info "已在 .bashrc 中添加 .shell_tools 加载"
         fi
         # 确保 ~/.local/bin 在 PATH 里
         if [[ -f "$HOME/.bashrc" ]] && ! grep -q '.local/bin' "$HOME/.bashrc"; then
@@ -328,6 +492,10 @@ create_symlinks() {
 # 4) 安装 TPM + tmux 插件
 # ============================================================
 install_tpm() {
+    if ! command -v git &>/dev/null || ! command -v tmux &>/dev/null; then
+        warn "没有 git 或 tmux，跳过 tmux 插件"
+        return 0
+    fi
     local tpm_dir="$HOME/.tmux/plugins/tpm"
     if [[ -d "$tpm_dir" ]]; then
         info "TPM 已安装，跳过"
@@ -341,12 +509,75 @@ install_tpm() {
 }
 
 # ============================================================
+# git：delta 显示 diff（catppuccin 配色，左右并排 + 行号）
+# ============================================================
+setup_git_delta() {
+    command -v git &>/dev/null || { warn "没有 git，跳过 delta 配置"; return 0; }
+    local inc="$HOME/.config/delta/catppuccin.gitconfig"
+    if ! git config --global --get-all include.path 2>/dev/null | grep -qF "$inc"; then
+        git config --global --add include.path "$inc"
+    fi
+    git config --global core.pager delta
+    git config --global interactive.diffFilter "delta --color-only"
+    git config --global delta.features catppuccin-mocha
+    git config --global delta.navigate true
+    git config --global delta.dark true
+    git config --global delta.line-numbers true
+    git config --global delta.side-by-side true
+    git config --global merge.conflictstyle diff3
+    git config --global diff.colorMoved default
+    info "git 已配置 delta"
+}
+
+# ============================================================
+# yazi 插件 / 主题（package.toml 里锁定的版本）
+# ============================================================
+setup_yazi() {
+    if command -v ya &>/dev/null; then
+        info "安装 yazi 插件和主题..."
+        (cd "$HOME/.config/yazi" && ya pkg install) || warn "yazi 插件安装失败（稍后可运行 ya pkg install）"
+    fi
+}
+
+# ============================================================
+# herdr 插件
+# ============================================================
+setup_herdr() {
+    command -v herdr &>/dev/null || { warn "没有 herdr，跳过 herdr 插件"; return; }
+    info "安装 herdr 插件..."
+    local plugins=(
+        lmilojevicc/herdr-splits.nvim     # Ctrl+h/j/k/l 在 nvim 分屏和 herdr pane 之间无缝移动
+        ddfonseca/herdr-paste-image       # Ctrl+a i：剪贴板截图存成文件并粘贴路径
+    )
+    if [[ "$OS" == "Darwin" ]]; then
+        plugins+=(
+            nwarwick/herdr-caffeinate                    # agent 干活时不休眠
+            ppggff/herdr-plugin/input-method-keeper      # 每个 pane 记住自己的输入法
+        )
+    fi
+    local p
+    for p in "${plugins[@]}"; do
+        herdr plugin install "$p" --yes >/dev/null 2>&1 && info "  $p" || warn "  $p 安装失败（稍后可运行 herdr plugin install $p --yes）"
+    done
+    # 仓库里自己写的插件
+    herdr plugin link "$DOTFILES_DIR/herdr/plugins/kiro-resume" >/dev/null 2>&1 && info "  local kiro-resume" || true
+    if [[ "$OS" == "Darwin" ]]; then
+        herdr plugin link "$DOTFILES_DIR/herdr/plugins/translate" >/dev/null 2>&1 && info "  local translate" || true
+    fi
+    # Claude Code 状态上报（herdr 侧边栏显示 claude 在干活/等你）
+    herdr integration install claude >/dev/null 2>&1 || true
+    herdr server reload-config >/dev/null 2>&1 || true
+}
+
+# ============================================================
 # 5) 同步 LazyVim 插件
 # ============================================================
 sync_nvim() {
     if command -v nvim &>/dev/null; then
-        info "同步 Neovim 插件（首次可能较慢）..."
-        timeout 120 nvim --headless "+Lazy! sync" +qa 2>/dev/null || warn "Neovim 插件同步超时或失败（可稍后打开 nvim 自动安装）"
+        # restore = 按 nvim/lazy-lock.json 装锁定的版本（sync 会升级到最新，可能和 nvim 版本不兼容）
+        info "安装 Neovim 插件（按 lazy-lock.json 锁定的版本，首次较慢）..."
+        local t=""; command -v timeout &>/dev/null && t="timeout 300"; command -v gtimeout &>/dev/null && t="gtimeout 300"
+        $t nvim --headless "+Lazy! restore" +qa 2>/dev/null || warn "Neovim 插件安装超时或失败（可稍后打开 nvim 自动安装）"
     else
         warn "nvim 未找到，跳过插件同步"
     fi
@@ -367,7 +598,9 @@ main() {
     echo ""
 
     # 安装工具
-    if [[ "$OS" == "Darwin" ]]; then
+    if [[ "$NO_TOOLS" == true ]]; then
+        info "--no-tools：跳过软件安装，只链接配置"
+    elif [[ "$OS" == "Darwin" ]]; then
         info "检测到 macOS，使用 Homebrew"
         install_tools_macos
     elif [[ "$OS" == "Linux" ]]; then
@@ -380,7 +613,10 @@ main() {
 
     backup_existing
     create_symlinks
+    setup_git_delta
+    setup_yazi
     install_tpm
+    setup_herdr
     sync_nvim
 
     echo ""
@@ -393,10 +629,10 @@ main() {
         info "后续操作（macOS）："
         echo "  1. 编辑 ~/.shell_env 填入你的 API Key（如果还没填）"
         echo "  2. source ~/.shell_env"
-        echo "  3. 打开 OrbStack App 完成初始化"
-        echo "  4. 打开 AeroSpace App"
-        echo "  5. 进入 tmux 按 Control+a 再按 Shift+i 确认插件已安装"
-        echo "  6. 打开 nvim 等待插件自动加载"
+        echo "  3. 打开 Ghostty，输入 herdr 开始使用（图片预览只在 Ghostty 里有）"
+        echo "  4. 打开 AeroSpace / OrbStack App 完成初始化"
+        echo "  5. 打开 nvim 等待插件自动加载"
+        echo "  6. 第一次截图/通知时，按系统提示给权限"
     else
         if [[ "$IS_WSL" == true ]]; then
             info "后续操作（WSL）："
@@ -415,13 +651,21 @@ main() {
             echo "  4. 打开 nvim 等待插件自动加载"
         fi
         echo ""
-        echo "  注意：Linux/WSL 上没有 AeroSpace / OrbStack / Alacritty（这些是 macOS 专属）"
-        echo "  直接用系统终端 + tmux + nvim 即可"
+        echo "  用法：在终端输入 herdr 开始（或继续用 tmux）"
+        echo "  注意：AeroSpace / OrbStack / 输入法记忆 / 不休眠 / 翻译插件是 macOS 专属"
+        echo "  图片预览需要终端支持 Kitty 图片协议：Linux 用 Ghostty / Kitty；Windows 用 WezTerm"
     fi
 
     echo ""
     info "配置文件说明见 README.md，插件说明见 nvim/PLUGINS.md"
     echo ""
 }
+
+NO_TOOLS=false
+for arg in "$@"; do
+    case "$arg" in
+        --no-tools) NO_TOOLS=true ;;
+    esac
+done
 
 main "$@"

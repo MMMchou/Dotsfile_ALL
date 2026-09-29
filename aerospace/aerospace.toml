@@ -23,7 +23,7 @@
 # Option + Shift + h/j/k/l 把当前窗口移到左/下/上/右
 # Option + 1-9             切换到桌面 1-9
 # Option + Shift + 1-9     把当前窗口发送到桌面 1-9
-# Option + Enter           打开新终端（Alacritty）
+# Option + Enter           打开新终端（Ghostty）
 # Option + f               切换当前窗口全屏
 # Option + t               平铺布局（tiles）
 # Option + s               堆叠布局（accordion）
@@ -82,7 +82,7 @@ alt-8 = 'workspace 8'
 alt-9 = 'workspace 9'
 
 # 打开终端（Option + Enter）
-alt-enter = 'exec-and-forget open -na Alacritty'
+alt-enter = 'exec-and-forget open -na Ghostty'
 
 # 切换当前窗口全屏（Option + f）
 alt-f = 'fullscreen'
@@ -150,11 +150,15 @@ alt-shift-l = ['join-with right', 'mode main']
 # 你可以根据自己的习惯修改
 #
 # 桌面分配建议：
-#   1 = 终端（Alacritty / Terminal / iTerm2）
+#   1 = 终端（Ghostty / Alacritty / Terminal / iTerm2）
 #   2 = 浏览器（Safari / Chrome / Arc）
 #   3 = 编辑器（Cursor / VS Code）
 #   4 = 通讯（微信 / Telegram / Slack）
 #   5 = 其他
+
+[[on-window-detected]]
+if.app-id = 'com.mitchellh.ghostty'
+run = 'move-node-to-workspace 1'
 
 [[on-window-detected]]
 if.app-id = 'org.alacritty'

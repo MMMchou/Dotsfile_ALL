@@ -1,0 +1,41 @@
+id = "local.kiro-resume"
+name = "Kiro Resume"
+version = "0.1.0"
+min_herdr_version = "0.9.0"
+description = "Remember which Kiro CLI session runs in each pane and resume it after a Herdr server restart"
+platforms = ["macos", "linux"]
+
+# Restore Kiro sessions once the server has restored its layout.
+[[startup]]
+command = ["/usr/bin/env", "python3", "kiro_resume.py", "restore"]
+
+# Keep the pane -> Kiro session map up to date.
+[[events]]
+on = "pane.agent_detected"
+command = ["/usr/bin/env", "python3", "kiro_resume.py", "sync"]
+
+[[events]]
+on = "pane.agent_status_changed"
+command = ["/usr/bin/env", "python3", "kiro_resume.py", "sync"]
+
+[[events]]
+on = "pane.closed"
+command = ["/usr/bin/env", "python3", "kiro_resume.py", "sync"]
+
+[[actions]]
+id = "status"
+title = "Kiro Resume: show saved sessions"
+contexts = ["workspace"]
+command = ["/usr/bin/env", "python3", "kiro_resume.py", "status"]
+
+[[actions]]
+id = "sync"
+title = "Kiro Resume: save now"
+contexts = ["workspace"]
+command = ["/usr/bin/env", "python3", "kiro_resume.py", "sync"]
+
+[[actions]]
+id = "restore"
+title = "Kiro Resume: restore now"
+contexts = ["workspace"]
+command = ["/usr/bin/env", "python3", "kiro_resume.py", "restore"]

@@ -1,0 +1,177 @@
+# ============================================================
+# 命令行舒适工具  ~/.shell_tools
+# macOS 由 ~/.bash_profile 加载；Linux/WSL 由 ~/.bashrc 加载（install.sh 会自动加上）。
+# 只放工具/别名/代理检测，不放密钥（密钥在 ~/.shell_env）。
+# 同一套文件在 macOS / Linux / WSL 通用，平台相关的部分都做了判断。
+#
+# 速查：
+#   y            打开 yazi 文件管理器（带图片/PDF/视频预览），退出后 shell 跟着进入最后所在目录
+#   z 目录片段    智能跳转到去过的目录（比如 z herdr）；zi = 交互式选
+#   Ctrl+r       模糊搜索历史命令（fzf）
+#   Ctrl+t       模糊搜索文件，把路径插入命令行（带预览）
+#   Alt+c        模糊搜索目录并进入（Option+c）
+#   ls / ll / la / lt   eza：带图标、颜色、git 状态；lt = 树形
+#   cat 文件      bat：带语法高亮的 cat（纯输出，不分页）
+#   md 文件.md    在终端里渲染 Markdown（glow）
+#   img 图片      在终端里直接显示图片（Ghostty 下）
+#   top          btop 系统监控
+# ============================================================
+
+# 同一个 shell 里只加载一次（不 export，子 shell 会重新加载别名和函数）
+[[ -n "${__SHELL_TOOLS_LOADED:-}" ]] && return 0
+__SHELL_TOOLS_LOADED=1
+
+# ---------- Homebrew（macOS: /opt/homebrew；Linux: /home/linuxbrew/.linuxbrew）----------
+if [[ -z "${HOMEBREW_PREFIX:-}" ]]; then
+  for __b in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew "$HOME/.linuxbrew/bin/brew"; do
+    [[ -x "$__b" ]] && { eval "$("$__b" shellenv)"; break; }
+  done
+  unset __b
+fi
+
+# ---------- 代理：本机代理端口开着就自动设置，没开就不设 ----------
+# 端口按自己的代理软件改（下面是 macOS 上艾可云的端口；Clash Verge 默认 7897）
+# 手动开关：proxy_on / proxy_off / proxy_status
+__proxy_host=${PROXY_HOST:-127.0.0.1}
+__proxy_http_port=${PROXY_HTTP_PORT:-33210}
+if [[ -z "${https_proxy:-}${HTTPS_PROXY:-}" ]] && (exec 3<>"/dev/tcp/$__proxy_host/$__proxy_http_port") 2>/dev/null; then
+  export http_proxy="http://$__proxy_host:$__proxy_http_port"
+  export https_proxy="$http_proxy" all_proxy="$http_proxy"
+  export HTTP_PROXY="$http_proxy" HTTPS_PROXY="$http_proxy" ALL_PROXY="$http_proxy"
+  export no_proxy="localhost,127.0.0.1,::1,.local" NO_PROXY="localhost,127.0.0.1,::1,.local"
+fi
+
+# 非交互 shell（脚本、scp 等）不加载下面这些
+[[ $- == *i* ]] || return 0
+
+export EDITOR=nvim
+export VISUAL=nvim
+
+# ---------- 历史记录 ----------
+export HISTSIZE=50000
+export HISTFILESIZE=100000
+export HISTCONTROL=ignoreboth:erasedups
+shopt -s histappend    # 多个 pane 的历史合并，不互相覆盖
+shopt -s cdspell       # cd 时自动纠正小拼写错误
+shopt -s autocd 2>/dev/null   # 直接输目录名就能进入
+
+# ---------- 补全（git、brew 等命令的 Tab 补全）----------
+if [[ -n "${HOMEBREW_PREFIX:-}" && -r "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh" ]]; then
+  . "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh"
+elif [[ -r /usr/share/bash-completion/bash_completion ]]; then
+  . /usr/share/bash-completion/bash_completion
+fi
+
+# ---------- bat：高亮 cat，主题跟 catppuccin 接近 ----------
+if command -v bat >/dev/null; then
+  export BAT_THEME="Catppuccin Mocha"
+  alias cat='bat --paging=never --style=plain'
+  export MANPAGER="sh -c 'col -bx | bat -l man -p'"   # man 手册也高亮
+  export MANROFFOPT="-c"
+fi
+
+# ---------- eza：好看的 ls ----------
+if command -v eza >/dev/null; then
+  alias ls='eza --icons=auto --group-directories-first'
+  alias ll='eza -l --icons=auto --group-directories-first --git --time-style=relative'
+  alias la='eza -la --icons=auto --group-directories-first --git --time-style=relative'
+  alias lt='eza --tree --level=2 --icons=auto --git-ignore'
+fi
+
+# ---------- fzf：模糊搜索（Ctrl+r / Ctrl+t / Alt+c）----------
+if command -v fzf >/dev/null; then
+  export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+  export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+  export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+  # catppuccin mocha 配色
+  export FZF_DEFAULT_OPTS="--height 60% --layout=reverse --border=rounded \
+--color=bg+:#313244,spinner:#f5e0dc,hl:#f38ba8,fg:#cdd6f4,header:#f38ba8 \
+--color=info:#cba6f7,pointer:#f5e0dc,marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8"
+  export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:300 {} 2>/dev/null || eza --tree --level=1 --icons=always {}'"
+  export FZF_ALT_C_OPTS="--preview 'eza --tree --level=2 --icons=always {} | head -100'"
+  eval "$(fzf --bash)"
+fi
+
+# ---------- zoxide：z 智能跳转 ----------
+command -v zoxide >/dev/null && eval "$(zoxide init bash)"
+
+# ---------- starship：提示符 ----------
+# 样式文件都在 ~/.config/starship/，当前用哪个记在 ~/.config/starship/current
+# 切换：starship_style hacker | minimal | pure | brackets | powerline   （不带参数 = 列出可选）
+# 换回 bash 默认提示符就注释掉最后一行 eval
+__starship_dir="$HOME/.config/starship"
+export STARSHIP_CONFIG="$__starship_dir/$(command cat "$__starship_dir/current" 2>/dev/null || echo minimal).toml"
+starship_style() {
+  if [[ -z "$1" ]]; then
+    echo "当前：$(basename "$STARSHIP_CONFIG" .toml)    可选：$(cd "$__starship_dir" && ls *.toml | sed 's/\.toml//' | tr '\n' ' ')"
+    return
+  fi
+  [[ -f "$__starship_dir/$1.toml" ]] || { echo "没有这个样式：$1"; return 1; }
+  echo "$1" > "$__starship_dir/current"
+  export STARSHIP_CONFIG="$__starship_dir/$1.toml"
+  echo "已切换到 $1（新开的 pane 也会用这个）"
+}
+command -v starship >/dev/null && eval "$(starship init bash)"
+
+# ---------- yazi：y 打开文件管理器，退出后 cd 到最后所在目录 ----------
+y() {
+  local tmp cwd
+  tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+  yazi "$@" --cwd-file="$tmp"
+  cwd="$(command cat -- "$tmp")"
+  if [[ -n "$cwd" && "$cwd" != "$PWD" ]]; then
+    builtin cd -- "$cwd" || return
+  fi
+  rm -f -- "$tmp"
+}
+
+# ---------- 预览小工具 ----------
+alias md='glow'                       # md README.md
+img() {                               # img a.png  终端里直接显示图片（Ghostty/herdr）；其他终端用「预览」打开
+  [[ -f "$1" ]] || { echo "用法: img 图片文件"; return 1; }
+  if [[ "$TERM_PROGRAM" == "ghostty" || "$TERM" == "xterm-ghostty" || -n "$HERDR_ENV" ]]; then
+    magick "$1" -resize '1600x1600>' png:- | base64 | tr -d '\n' | {
+      local data; data="$(command cat)"
+      local i=0 chunk m
+      while (( i < ${#data} )); do
+        chunk="${data:i:4096}"; i=$((i + 4096))
+        (( i < ${#data} )) && m=1 || m=0
+        if (( i == 4096 )); then printf '\033_Gf=100,a=T,m=%d;%s\033\\' "$m" "$chunk"
+        else printf '\033_Gm=%d;%s\033\\' "$m" "$chunk"; fi
+      done
+      echo
+    }
+  elif [[ "$(uname -s)" == Darwin ]]; then
+    open -a Preview "$1"
+  elif command -v chafa >/dev/null; then
+    chafa "$1"
+  else
+    xdg-open "$1" >/dev/null 2>&1 &
+  fi
+}
+# ---------- 代理开关（启动时 ~/.bash_profile 已自动检测设置）----------
+proxy_on() {
+  local h=${__proxy_host:-127.0.0.1} p=${__proxy_http_port:-33210}
+  export http_proxy="http://$h:$p" https_proxy="http://$h:$p"
+  export all_proxy="http://$h:$p"
+  export HTTP_PROXY="$http_proxy" HTTPS_PROXY="$https_proxy" ALL_PROXY="$all_proxy"
+  export no_proxy="localhost,127.0.0.1,::1,.local" NO_PROXY="$no_proxy"
+  proxy_status
+}
+proxy_off() {
+  unset http_proxy https_proxy all_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY no_proxy NO_PROXY
+  echo "代理已关闭"
+}
+proxy_status() {
+  if [[ -n "$https_proxy" ]]; then
+    echo "代理：https=$https_proxy  all=$all_proxy"
+    curl -s -o /dev/null -m 5 -w "访问 google：HTTP %{http_code}\n" https://www.google.com || echo "访问 google 失败"
+  else
+    echo "代理：未设置"
+  fi
+}
+
+alias top='btop'
+if [[ "$(uname -s)" == Darwin ]]; then
+  alias ql='qlmanage -p >/dev/null 2>&1'   # ql 文件  用 macOS 快速查看打开任意文件
+fi

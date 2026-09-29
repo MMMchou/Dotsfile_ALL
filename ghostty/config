@@ -1,0 +1,79 @@
+# ============================================================
+# Ghostty 终端配置
+# 配置文件位置：~/.config/ghostty/config
+# 官方文档：https://ghostty.org/docs/config
+# 查看所有选项：ghostty +show-config --default --docs
+# 改完生效：Command + Shift + ,（重新加载配置）
+#
+# 这份配置是从 ~/.config/alacritty/alacritty.toml 搬过来的，
+# 外观和按键行为尽量和 Alacritty 保持一致。
+# 换 Ghostty 的主要原因：支持 Kitty 图片协议，
+# Neovim / herdr 里可以直接显示 png/jpg/gif/pdf 等预览。
+#
+# 按键分工（和之前一样）：
+#   Option (⌥)  → AeroSpace 窗口管理
+#   Control+a   → herdr prefix
+#   Space       → Neovim leader
+# ============================================================
+
+# ---------- 关键设置 ----------
+# 把 Option 键当 Alt 用（等同 Alacritty 的 option_as_alt = "Both"）
+macos-option-as-alt = true
+
+# ---------- 外观 ----------
+# 主题：和 Neovim / herdr 的 catppuccin mocha 对齐
+theme = Catppuccin Mocha
+
+# 字体（Nerd Font，LazyVim 图标需要）
+font-family = Hack Nerd Font Mono
+font-size = 14
+
+# 背景透明度（1 = 不透明）
+background-opacity = 0.95
+
+# 窗口内边距（像素）
+window-padding-x = 8
+window-padding-y = 8
+
+# 标题栏样式：tabs = 标签页直接嵌在标题栏里，每个标签有关闭按钮，颜色跟背景一致
+# （之前用 hidden：标题栏藏起来了，但多开标签页时标签栏显示不正常、没法点关闭）
+# 可选：native / transparent / tabs / hidden
+macos-titlebar-style = tabs
+
+# ---------- 窗口 ----------
+# 启动时最大化（等同 startup_mode = "Maximized"）
+maximize = true
+
+# 非最大化时的默认大小（列 x 行）
+window-width = 120
+window-height = 36
+
+# ---------- Shell ----------
+# 用哪个 shell 启动写在 config.local 里（每台机器不同，install.sh 自动生成，不进仓库）：
+#   macOS：command = /opt/homebrew/bin/bash --login（Homebrew 的新版 bash，会加载 ~/.bash_profile）
+#   Linux：不写，用系统默认 shell
+config-file = ?config.local
+
+# Command+N 新建窗口是 Ghostty 默认行为，无需额外配置
+
+# ---------- 舒适性 ----------
+# 打字时隐藏鼠标指针
+mouse-hide-while-typing = true
+# 选中文字自动复制到剪贴板
+copy-on-select = clipboard
+# 光标：竖线、不闪（进 nvim 普通模式后 nvim 会自己改成方块）
+cursor-style = bar
+cursor-style-blink = false
+# 让 Nerd Font 在 Mac 上看起来略粗一点、更清楚
+font-thicken = true
+# 关窗口时，只有在里面还有程序在跑时才确认
+confirm-close-surface = true
+# ssh 到服务器时自动带上 Ghostty 的 terminfo，避免远端 “unknown terminal type”
+shell-integration-features = ssh-env,ssh-terminfo
+
+# ---------- 快捷键 ----------
+# 全局下拉终端：任意 App 里按 Control+` 从屏幕顶部弹出/收起一个终端
+# （首次使用 macOS 会要求给 Ghostty「辅助功能」权限）
+keybind = global:ctrl+grave_accent=toggle_quick_terminal
+quick-terminal-position = top
+quick-terminal-animation-duration = 0.15

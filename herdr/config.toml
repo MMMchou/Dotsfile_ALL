@@ -1,0 +1,196 @@
+# ============================================================
+# Herdr 配置  ~/.config/herdr/config.toml
+# 官方文档：https://herdr.dev/docs/configuration/
+# 完整默认配置：herdr --default-config
+# 改完生效：herdr server reload-config   或   prefix+shift+r
+# ============================================================
+#
+# 【设计意图】
+# 1. prefix 对齐你 ~/.tmux.conf 的 C-a，肌肉记忆不变
+# 2. 主题对齐 tmux 的 catppuccin mocha，状态栏放底部
+# 3. agent 状态用系统通知推给你（blocked / done）
+# 4. 不抢 Neovim 和 agent 的按键，一律走 prefix
+#
+# 【按键分工，延续你现有约定】
+#   Option (⌥)  → AeroSpace 窗口管理
+#   Control+a   → Herdr prefix（原 tmux prefix）
+#   Space       → Neovim leader
+
+onboarding = false
+
+# ------------------------------------------------------------
+# 主题
+# ------------------------------------------------------------
+[theme]
+# 和 tmux 的 @catppuccin_flavor "mocha" 对齐
+name = "terminal"
+# 跟随系统亮暗自动切换（想固定深色就删掉下面三行）
+auto_switch = false
+dark_name = "catppuccin"
+light_name = "catppuccin-latte"
+
+# ------------------------------------------------------------
+# 终端 / 新 pane 行为
+# ------------------------------------------------------------
+[terminal]
+# 【重要】别改成 "non_login"。
+# macOS 下 "auto" = login shell，才会走 .bash_profile -> ~/.shell_env，
+# 把 ANTHROPIC_AUTH_TOKEN / ANTHROPIC_BASE_URL / ANTHROPIC_MODEL 带进来。
+# 改成 non_login 的话 claude 直接不能用。
+shell_mode = "auto"
+
+# 新 pane / tab / workspace 继承来源目录（等价于 tmux 的
+# split-window -c "#{pane_current_path}"）
+new_cwd = "follow"
+
+# 在支持 Kitty 图片协议的外层终端（Ghostty / Kitty）里显示 pane 内的图片，
+# Neovim 的 snacks.image 预览靠这个。默认就是 true，这里写出来方便查。
+# 注意：外层终端是 Alacritty 时依然显示不了（Alacritty 不支持图片协议）。
+kitty_graphics = true
+
+# ------------------------------------------------------------
+# 按键
+# ------------------------------------------------------------
+[keys]
+# 对齐 .tmux.conf 的 set -g prefix C-a
+prefix = "ctrl+a"
+
+# 直接跳到第 N 个 agent（默认不绑）。
+# 这条是替代你 tmux 里「记住 kiro 在 4 号窗口第 2 格」的关键。
+focus_agent = "prefix+alt+1..9"
+
+# pane 导航：prefix+hjkl 是默认；ctrl+alt+hjkl 是免 prefix 的直接键，
+# 对应你 tmux 的 bind -n C-h/j/k/l。
+#
+# 【要实测】你 Alacritty 设了 option_as_alt = "Both" 且 Option 归 AeroSpace，
+# ctrl+alt+* 可能被 AeroSpace 先吃掉。如果按了没反应，把每行的第二项删掉，
+# 只留 prefix+ 版本即可。
+focus_pane_left  = ["prefix+h", "ctrl+alt+h"]
+focus_pane_down  = ["prefix+j", "ctrl+alt+j"]
+focus_pane_up    = ["prefix+k", "ctrl+alt+k"]
+focus_pane_right = ["prefix+l", "ctrl+alt+l"]
+
+# 分屏方向对齐你的 tmux 习惯（tmux: | 左右, - 上下）
+# 注意：官方只承诺支持 minus / comma / ampersand / plus / backtick 这几个
+# 标点名，backslash 不在列，所以左右分只用 prefix+v。
+split_vertical   = "prefix+v"      # 左右分（tmux 里是 prefix+|）
+split_horizontal = "prefix+minus"  # 上下分（tmux 里是 prefix+-，一致）
+
+# 其余保持 Herdr 默认，和 tmux 基本同构：
+#   prefix+c        新 Tab          (tmux: prefix+c)
+#   prefix+n / p    下/上一个 Tab   (tmux: prefix+n / p)
+#   prefix+1..9     跳 Tab          (tmux: prefix+数字)
+#   prefix+z        zoom            (tmux: prefix+z)
+#   prefix+x        关 pane
+#   prefix+[        copy mode，vi 键位 v 选 y 复制（同你 tmux 配置）
+#   prefix+q        detach          (tmux: prefix+d)
+#   prefix+w        workspace 列表
+#   prefix+g        goto 搜索跳转
+#   prefix+b        开关 sidebar
+#   prefix+?        查看当前全部绑定
+
+# ------------------------------------------------------------
+# UI / 状态栏
+# ------------------------------------------------------------
+[ui]
+# 状态栏放底部，和 tmux 一样
+tab_bar_position = "bottom"
+
+# 右下角状态区。
+# 注意：git 分支不用在这里写了 —— sidebar 的 space 行默认就有
+# branch + git_status，比你 tmux 里那串 #(cd ... git rev-parse) 更准。
+# CPU/RAM/电池先不加，需要的话用 { type = "command", command = "...", interval_seconds = 5 }。
+tab_bar_right = [
+  { type = "zoom" },
+  { type = "datetime", format = "%m-%d %H:%M" },
+]
+tab_bar_right_separator = "  "
+
+# agent 状态用不同形状区分，不只靠颜色（blocked/working/done/idle 更好认）
+status_indicators = "symbols"
+
+# ------------------------------------------------------------
+# 通知：agent 卡住或跑完时叫你
+# ------------------------------------------------------------
+[ui.toast]
+# "system" = macOS 通知中心。已装 terminal-notifier（brew），点通知会切回 Ghostty，
+# 再按 Ctrl+a o 跳到发通知的那个 pane。
+# 不想被打扰可改 "herdr"（应用内 toast）或 "off"。
+delivery = "system"
+delay_seconds = 1
+
+# ------------------------------------------------------------
+# Git worktree（第二阶段再用）
+# ------------------------------------------------------------
+# 从 sidebar 的 New worktree 创建的 checkout 放这里，
+# 会作为子 workspace 挂在父项目下面。
+[worktrees]
+directory = "~/projects/.herdr-worktrees"
+
+# ------------------------------------------------------------
+# 会话恢复
+# ------------------------------------------------------------
+[session]
+# 服务器/机器重启后，把有官方 integration 的 agent pane 恢复到原生会话。
+# claude / codex 走这里；kiro 没有官方 integration，由本地插件 local.kiro-resume
+# （~/herdr-plugins/kiro-resume）负责：记录每个 pane 的 kiro session，
+# 重启后自动执行 kiro-cli chat --resume-id <id>。
+resume_agents_on_restore = true
+
+# ------------------------------------------------------------
+# 中文输入法
+# ------------------------------------------------------------
+[experimental]
+# claude / kiro 这类 TUI 会自己画光标并隐藏硬件光标，导致 macOS
+# 输入法候选框不跟随光标。打开后候选框会跟着输入位置走。
+reveal_hidden_cursor_for_cjk_ime = true
+cjk_ime_agents = ["claude", "kiro", "codex"]
+# 按 Ctrl+a 进入 prefix 时临时切到英文，按完命令再切回原输入法。
+# 这样中文输入法开着也能正常用 Ctrl+a 快捷键。
+switch_ascii_input_source_in_prefix = true
+# 另外：每个 pane 记住自己的输入法（插件 ppggff.input-method-keeper，自动生效，无需按键）
+
+# ------------------------------------------------------------
+# 插件快捷键
+# ------------------------------------------------------------
+# nvim 和 herdr 无缝移动（插件 herdr-splits）：Ctrl+h/j/k/l
+# 在 nvim 里先在 nvim 分屏之间移动，到边上再跳到隔壁 herdr pane。
+# 代价：普通 shell 里 Ctrl+l（清屏）和 Ctrl+k（删到行尾）被占用，清屏改用 clear。
+[[keys.command]]
+key = "ctrl+h"
+type = "plugin_action"
+command = "herdr-splits.nav-left"
+description = "左边的 nvim 窗口 / pane"
+
+[[keys.command]]
+key = "ctrl+j"
+type = "plugin_action"
+command = "herdr-splits.nav-down"
+description = "下边的 nvim 窗口 / pane"
+
+[[keys.command]]
+key = "ctrl+k"
+type = "plugin_action"
+command = "herdr-splits.nav-up"
+description = "上边的 nvim 窗口 / pane"
+
+[[keys.command]]
+key = "ctrl+l"
+type = "plugin_action"
+command = "herdr-splits.nav-right"
+description = "右边的 nvim 窗口 / pane"
+
+# 截图贴给 AI（插件 herdr-paste-image）：先 Cmd+Ctrl+Shift+4 截图到剪贴板，再按 Ctrl+a i
+[[keys.command]]
+key = "prefix+i"
+type = "plugin_action"
+command = "herdr-paste-image.paste"
+description = "把剪贴板图片存成文件并粘贴路径"
+
+# 翻译（本地插件 local.translate，~/herdr-plugins/translate）：鼠标选中文字，再按 Ctrl+a t
+[[keys.command]]
+key = "prefix+t"
+type = "plugin_action"
+command = "local.translate.now"
+description = "翻译选中的文字"
+

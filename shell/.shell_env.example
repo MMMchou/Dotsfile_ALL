@@ -21,7 +21,12 @@ export ANTHROPIC_MODEL="your-model-name"
 export ANTHROPIC_DEFAULT_OPUS_MODEL="your-model-name"
 export CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1
 
-# ---- 自定义代理（如果网络受限，取消注释并填入代理地址） ----
+# ---- 代理端口（~/.shell_tools 会自动检测，端口开着就自动设置代理） ----
+# 默认 127.0.0.1:33210；Clash Verge 一般是 7897，按你的代理软件改：
+# export PROXY_HTTP_PORT=7897
+# WSL 里用 Windows 上的代理：开启镜像网络（.wslconfig: [wsl2] networkingMode=mirrored）后用 127.0.0.1 即可
+
+# ---- 或者直接写死代理（写了就不会再自动检测） ----
 # export HTTP_PROXY="http://proxy:port"
 # export HTTPS_PROXY="http://proxy:port"
 # export ALL_PROXY="socks5://proxy:port"
