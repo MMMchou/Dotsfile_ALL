@@ -30,7 +30,7 @@ require("lazy").setup({
     { import = "lazyvim.plugins.extras.lang.markdown" },   -- Markdown：增强语法高亮
     { import = "lazyvim.plugins.extras.lang.docker" },     -- Docker：Dockerfile / compose 语法 + LSP
     { import = "lazyvim.plugins.extras.lang.yaml" },       -- YAML：k8s / GitHub Actions 等配置文件
-    { import = "lazyvim.plugins.extras.lang.toml" },       -- TOML：你的 aerospace.toml / alacritty.toml
+    { import = "lazyvim.plugins.extras.lang.toml" },       -- TOML：你的 herdr / alacritty / yazi 等 .toml 配置
     { import = "lazyvim.plugins.extras.lang.git" },        -- Git：增强 git commit / rebase 编辑体验
     { import = "lazyvim.plugins.extras.lang.sql" },        -- SQL：写数据库查询时有补全和高亮
 

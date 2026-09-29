@@ -1,39 +1,37 @@
 # 从零开始：终端开发工作流新手训练教程（macOS + Linux）
 
-> 本教程面向完全没用过 tmux / Neovim / AeroSpace / OrbStack / SSH 的新手。
+> 本教程面向完全没用过 tmux / Neovim / SSH 的新手。
 > 每一步都有完整操作和预期结果，建议你边看边跟着做。
 > 快捷键速查请看 README.md。
 >
-> **Linux 用户注意：** AeroSpace、OrbStack、Alacritty 是 macOS 专属工具，Linux 上不需要。
-> Linux 用户可以跳过第零课、第二课、第五课，直接从第三课（tmux）和第四课（Neovim）开始。
+> **Linux 用户注意：** Alacritty 是 macOS 专属工具，Linux 上不需要。
+> Linux 用户可以跳过第零课，直接从第二课（tmux）和第三课（Neovim）开始。
 >
 > **Mac 键盘上有三个修饰键，别搞混：**
 >
 > | 按键名 | 符号 | 键盘位置 | 本教程用在哪 |
 > |--------|------|----------|-------------|
 > | **Control** | ⌃ | 左下角，fn 旁边 | tmux 前缀键、tmux 面板切换 |
-> | **Option** | ⌥ | Command 左右两边 | AeroSpace 窗口管理 |
+> | **Option** | ⌥ | Command 左右两边 | 终端 App 的 Alt 键（比如 Neovim 的 Alt 快捷键） |
 > | **Command** | ⌘ | 空格左右两边 | macOS 系统操作（本教程很少用） |
 >
-> 如果按 Option+h/j/k/l 没反应，请先完成"第零课"。
+> 如果 Option 键在终端里打出奇怪的符号，请先完成"第零课"。
 
 ---
 
 ## 目录
 
-0. [第零课：让 Option 键正常工作（Mac 必看）](#0-第零课让-option-键正常工作mac-必看)
+0. [第零课：认识 Mac 键盘的修饰键（Mac 必看）](#0-第零课认识-mac-键盘的修饰键mac-必看)
 1. [你会学到什么](#1-你会学到什么)
 2. [第一课：认识你的工具链](#2-第一课认识你的工具链)
-3. [第二课：AeroSpace — 窗口不用鼠标拖了](#3-第二课aerospace--窗口不用鼠标拖了)
-4. [第三课：tmux — 一个终端变成十个](#4-第三课tmux--一个终端变成十个)
-5. [第四课：Neovim — 终端里的代码编辑器](#5-第四课neovim--终端里的代码编辑器)
-6. [第五课：OrbStack — 在 Mac 上跑 Linux 和 Docker](#6-第五课orbstack--在-mac-上跑-linux-和-docker)
-7. [第六课：SSH — 连接远程服务器](#7-第六课ssh--连接远程服务器)
-8. [第七课：在容器和服务器之间切换](#8-第七课在容器和服务器之间切换)
-9. [第八课：把你的配置同步到 GitHub](#9-第八课把你的配置同步到-github)
-10. [第九课：在新机器上一键恢复环境](#10-第九课在新机器上一键恢复环境)
-11. [第十课：日常训练计划（21天养成习惯）](#11-第十课日常训练计划21天养成习惯)
-12. [附录：遇到问题怎么办](#12-附录遇到问题怎么办)
+3. [第二课：tmux — 一个终端变成十个](#3-第二课tmux--一个终端变成十个)
+4. [第三课：Neovim — 终端里的代码编辑器](#4-第三课neovim--终端里的代码编辑器)
+5. [第四课：SSH — 连接远程服务器](#5-第四课ssh--连接远程服务器)
+6. [第五课：在容器和服务器之间切换](#6-第五课在容器和服务器之间切换)
+7. [第六课：把你的配置同步到 GitHub](#7-第六课把你的配置同步到-github)
+8. [第七课：在新机器上一键恢复环境](#8-第七课在新机器上一键恢复环境)
+9. [第八课：日常训练计划（19天养成习惯）](#9-第八课日常训练计划19天养成习惯)
+10. [附录：遇到问题怎么办](#10-附录遇到问题怎么办)
 
 ---
 
@@ -56,15 +54,15 @@ Mac 键盘最下面一排，从左到右大概是这样：
 | 键名 | 符号 | 在键盘哪里 | 本教程用来干什么 |
 |------|------|-----------|----------------|
 | **Control** | ⌃ | fn 旁边（左下角 / 右下角） | **tmux 所有操作**（前缀键 Control+a、面板切换 Control+h/j/k/l） |
-| **Option** | ⌥ | Command 两边 | **AeroSpace 窗口管理**（Option+h/j/k/l 切窗口、Option+1-9 切桌面） |
+| **Option** | ⌥ | Command 两边 | **终端 App 的 Alt 键**（比如 Neovim 里用到的 Alt 快捷键） |
 | **Command** | ⌘ | 空格两边 | macOS 系统快捷键（Command+Q 退出、Command+空格 Spotlight），本教程很少用 |
 
-> **一句话记住：Control 管 tmux，Option 管 AeroSpace，Command 管 macOS。**
+> **一句话记住：Control 管 tmux，Option 当 Alt 键，Command 管 macOS。**
 
 ### 为什么 Option 键可能不工作
 
 macOS 默认让 Option 键输入特殊字符（比如 Option+j 输出 ∆），
-所以你按 Option+h/j/k/l **不会切换窗口，而是打出奇怪的符号**。
+所以你在终端里按 Option+字母 **不会当作 Alt 键，而是打出奇怪的符号**。
 
 需要在 Alacritty 配置里修复。**已经帮你改好了。**
 
@@ -75,20 +73,19 @@ macOS 默认让 Option 键输入特殊字符（比如 Option+j 输出 ∆），
 option_as_alt = "Both"
 ```
 
-这让 Option 键发送正确的信号，AeroSpace 才能收到。
+这让 Option 键发送正确的信号，终端里的程序（比如 Neovim）才能正确收到 Alt 快捷键。
 
 ### 验证方法
 
 1. **完全退出 Alacritty**（Command+Q，不是点×关窗口）
 2. **重新打开 Alacritty**
-3. 打开两个 App 窗口（比如 Alacritty + Safari）让它们左右排列
-4. 按 **Option+l** → 如果焦点跳到了右边的窗口 → AeroSpace 正常工作了
-5. 进入 tmux 测试：`tmux new -s test`，按 `Control+a` 然后按 `|` 分屏，按 **Control+l** → 焦点跳到右面板 → tmux 正常工作了
+3. 在命令行按住 Option 再按字母（比如 Option+b、Option+f）→ 光标按单词前后移动，而不是打出奇怪的符号（比如 ∫、ƒ）→ 说明 Option 已经当作 Alt 键工作了
+4. 进入 tmux 测试：`tmux new -s test`，按 `Control+a` 然后按 `|` 分屏，按 **Control+l** → 焦点跳到右面板 → tmux 正常工作了
 
-### 如果 Option 快捷键还是不行
+### 如果 Option 键还是输出奇怪符号
 
-检查 AeroSpace 是否在运行（看菜单栏有没有小飞机图标），
-如果没有，在 Spotlight（Command+空格）搜索 AeroSpace 打开。
+确认 `~/.config/alacritty/alacritty.toml` 里有 `option_as_alt = "Both"`，
+然后按 Command+Q **完全退出** Alacritty，再重新打开（改配置后必须重启才生效）。
 
 ### 本教程的按键写法对照表
 
@@ -96,12 +93,11 @@ option_as_alt = "Both"
 |-------------|------------|--------|
 | Control+a | 左下角 ⌃ + a | tmux 前缀键 |
 | Control+h/j/k/l | 左下角 ⌃ + h/j/k/l | tmux 切换面板 |
-| Option+h/j/k/l | Command 旁边 ⌥ + h/j/k/l | AeroSpace 切换窗口 |
-| Option+1-9 | Command 旁边 ⌥ + 1-9 | AeroSpace 切换桌面 |
+| Option+字母 | Command 旁边 ⌥ + 字母 | 终端 App 的 Alt 快捷键（如 Neovim） |
 | Command+Q | ⌘ + Q | macOS 退出应用 |
 | Command+空格 | ⌘ + 空格 | macOS Spotlight 搜索 |
 
-> **后面教程统一写法：Control = tmux 操作，Option = AeroSpace 操作。**
+> **后面教程统一写法：Control = tmux 操作，Option = 终端 App 的 Alt 键。**
 
 ---
 
@@ -111,12 +107,10 @@ option_as_alt = "Both"
 
 ```
 你的 Mac
-├── AeroSpace    → 用键盘管理所有窗口（不用鼠标拖来拖去）
 ├── Alacritty    → 你的终端 App
 │   └── tmux     → 终端内部分屏、多窗口、断开不丢失
 │       ├── Neovim   → 在终端里写代码
-│       ├── SSH      → 连远程服务器
-│       └── OrbStack → 跑 Linux 虚拟机 / Docker 容器
+│       └── SSH      → 连远程服务器
 └── 浏览器        → 查文档
 ```
 
@@ -130,11 +124,9 @@ option_as_alt = "Both"
 
 | 你遇到的问题 | 用什么解决 |
 |---|---|
-| 窗口太多，来回切换很烦，要用鼠标拖 | AeroSpace |
 | 终端只能做一件事，想同时看代码和跑命令 | tmux |
 | SSH 断了，跑了一半的程序就没了 | tmux（在服务器上用） |
 | 编辑服务器上的文件很麻烦 | Neovim |
-| 想在 Mac 上测试 Linux 环境 | OrbStack |
 | 连服务器要记 IP、端口、用户名 | SSH config |
 | 换了电脑，所有配置都要重新弄 | Dotfiles + GitHub |
 
@@ -145,8 +137,6 @@ option_as_alt = "Both"
 ```bash
 tmux -V          # 应该显示 tmux 3.x
 nvim --version   # 应该显示 NVIM v0.11.x
-aerospace --help # 应该显示帮助信息
-orb --version    # 应该显示 OrbStack 版本
 ssh -V           # 应该显示 OpenSSH 版本
 ```
 
@@ -157,77 +147,9 @@ cd ~/Dotsfile_ALL && ./install.sh
 
 ---
 
-## 3. 第二课：AeroSpace — 窗口不用鼠标拖了
+## 3. 第二课：tmux — 一个终端变成十个
 
-### 3.1 什么是平铺窗口管理器
-
-你现在用 Mac 的方式：打开很多窗口 → 互相遮挡 → 用鼠标拖来拖去找窗口。
-
-AeroSpace 的方式：打开窗口 → 自动并排排列 → 用键盘一秒切换。
-
-### 3.2 第一次启动
-
-1. 在 Spotlight（Cmd+Space）搜索 `AeroSpace`，打开
-2. 系统会弹窗要求"辅助功能"权限 → 点允许
-3. 启动后你的窗口会自动排列整齐
-
-### 3.3 跟着练：基本操作
-
-**练习 1：打开两个窗口看效果**
-
-```
-1. Option+Enter          → 打开一个终端
-2. 再按 Option+Enter     → 打开第二个终端
-3. 观察：两个终端自动左右平铺了！
-```
-
-**练习 2：在窗口间切换**
-
-```
-1. Option+h              → 焦点移到左边的窗口
-2. Option+l              → 焦点移到右边的窗口
-3. Option+j / Option+k      → 上下切换（如果有上下排列的窗口）
-```
-
-**练习 3：移动窗口位置**
-
-```
-1. Option+Shift+l        → 把当前窗口移到右边
-2. Option+Shift+h        → 把当前窗口移到左边
-```
-
-**练习 4：使用多个桌面**
-
-```
-1. Option+1              → 切到桌面 1（终端）
-2. Option+2              → 切到桌面 2（浏览器）
-   打开 Safari 或 Chrome，它会自动跑到桌面 2
-3. Option+1              → 切回桌面 1
-4. Option+Shift+2        → 把当前窗口发送到桌面 2
-```
-
-**练习 5：窗口全屏**
-
-```
-1. Option+f              → 当前窗口全屏
-2. 再按 Option+f         → 恢复平铺
-```
-
-### 3.4 小结
-
-```
-记住这几个就够日常用了：
-- Option+h/j/k/l          切换窗口
-- Option+1-9               切换桌面
-- Option+Enter             开终端
-- Option+f                 全屏
-```
-
----
-
-## 4. 第三课：tmux — 一个终端变成十个
-
-### 4.1 为什么要用 tmux
+### 3.1 为什么要用 tmux
 
 不用 tmux：
 - 一个终端只能做一件事
@@ -239,7 +161,7 @@ AeroSpace 的方式：打开窗口 → 自动并排排列 → 用键盘一秒切
 - 关掉终端、断开 SSH，程序照样跑
 - 第二天打开终端，一秒恢复昨天的工作现场
 
-### 4.2 核心概念（3 个层级）
+### 3.2 核心概念（3 个层级）
 
 ```
 Session（会话）
@@ -259,7 +181,7 @@ Session（会话）
     └── 面板：docker logs
 ```
 
-### 4.3 前缀键
+### 3.3 前缀键
 
 tmux 的所有快捷键都需要先按"前缀键"，再按功能键。
 
@@ -267,7 +189,7 @@ tmux 的所有快捷键都需要先按"前缀键"，再按功能键。
 
 写法约定：`前缀+x` 表示先按 Control+a，松开，再按 x。
 
-### 4.4 跟着练：完整流程
+### 3.4 跟着练：完整流程
 
 **练习 1：创建你的第一个会话**
 
@@ -334,7 +256,7 @@ SSH 断了 → 重新连 → tmux attach → 恢复现场
 3. 所有窗口都关了 → 会话自动关闭
 ```
 
-### 4.5 小结
+### 3.5 小结
 
 ```
 日常只需要记住：
@@ -349,15 +271,15 @@ SSH 断了 → 重新连 → tmux attach → 恢复现场
 
 ---
 
-## 5. 第四课：Neovim — 终端里的代码编辑器
+## 4. 第三课：Neovim — 终端里的代码编辑器
 
-### 5.1 为什么在终端里用编辑器
+### 4.1 为什么在终端里用编辑器
 
 - 在服务器上没有 VS Code，只能用终端编辑器
 - Neovim 启动秒开，不像 IDE 要等半天
 - 配合 tmux，分屏写代码 + 跑命令，不用切窗口
 
-### 5.2 Neovim 的模式（最重要的概念）
+### 4.2 Neovim 的模式（最重要的概念）
 
 Neovim 有 4 个模式，这是它和普通编辑器最大的区别：
 
@@ -376,7 +298,7 @@ Normal → Visual：    按 v
 Normal → Command：   按 :（冒号）
 ```
 
-### 5.3 跟着练：从打开到保存退出
+### 4.3 跟着练：从打开到保存退出
 
 **练习 1：打开 Neovim**
 
@@ -453,7 +375,7 @@ Control+r = 重做
 gcc  = 注释/取消注释当前行
 ```
 
-### 5.4 小结
+### 4.4 小结
 
 ```
 新手生存工具包（记住这些就能活下来）：
@@ -470,142 +392,13 @@ gcc  = 注释/取消注释当前行
 
 ---
 
-## 6. 第五课：OrbStack — 在 Mac 上跑 Linux 和 Docker
+## 5. 第四课：SSH — 连接远程服务器
 
-### 6.1 为什么需要 OrbStack
-
-- 你的代码最终要部署到 Linux 服务器，需要在本地测试
-- 很多开发工具（数据库、Redis、消息队列）用 Docker 跑最方便
-- OrbStack 比 Docker Desktop 快很多，还能直接跑完整的 Linux 虚拟机
-
-### 6.2 第一次启动
-
-1. 在 Spotlight 搜索 `OrbStack`，打开
-2. 按提示完成初始化（会下载一些组件）
-3. 完成后你就有了 `docker` 和 `orb` 命令
-
-### 6.3 跟着练：Docker 容器
-
-**练习 1：跑一个临时容器**
-
-```bash
-# 拉取并运行一个 Ubuntu 容器，进入 bash
-docker run -it ubuntu bash
-```
-
-你现在在一个 Ubuntu 系统里了！试试：
-```bash
-cat /etc/os-release     # 看看是什么系统
-apt update              # 更新包管理器
-apt install -y curl     # 装个工具
-exit                    # 退出容器（容器也会停止）
-```
-
-**练习 2：后台跑一个服务**
-
-```bash
-# 跑一个 Nginx 网页服务器
-docker run -d --name my-nginx -p 8080:80 nginx
-
-# 打开浏览器访问 http://localhost:8080
-# 你会看到 Nginx 欢迎页面！
-
-# 查看正在运行的容器
-docker ps
-
-# 停止容器
-docker stop my-nginx
-
-# 删除容器
-docker rm my-nginx
-```
-
-### 6.4 跟着练：Linux 虚拟机
-
-Docker 容器是"用完即走"的，Linux 虚拟机是"长期使用"的。
-
-**练习 1：创建一台 Linux 机器**
-
-```bash
-# 创建一台名叫 dev 的 Ubuntu 机器
-orb create ubuntu dev
-```
-
-**练习 2：进入 Linux 机器**
-
-```bash
-# 进入 dev 机器
-orb -m dev
-
-# 你现在在一个完整的 Ubuntu 里了
-uname -a             # 看系统信息
-ls /mnt/mac/         # 看到你 Mac 的文件了！
-
-# 退出
-exit
-```
-
-**练习 3：文件共享（超级方便）**
-
-```
-Mac 的文件在 Linux 里的路径：
-/mnt/mac/Users/mac/          → 对应你 Mac 的 ~/
-
-Linux 的文件在 Mac 里的路径：
-~/OrbStack/dev/              → 对应 dev 机器的 ~/
-
-你可以直接在 Mac 上编辑 Linux 里的文件，反过来也行。
-```
-
-**练习 4：在 Linux 机器里部署你的配置**
-
-```bash
-# 进入 dev 机器
-orb -m dev
-
-# 安装必要工具
-sudo apt update
-sudo apt install -y git tmux neovim
-
-# 直接用 Mac 上的 Dotsfile_ALL（通过文件共享）
-ln -sf /mnt/mac/Users/mac/Dotsfile_ALL/tmux/.tmux.conf ~/.tmux.conf
-mkdir -p ~/.config
-ln -sf /mnt/mac/Users/mac/Dotsfile_ALL/nvim ~/.config/nvim
-
-# 安装 TPM
-git clone --depth 1 https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-
-# 进入 tmux
-tmux new -s dev
-
-# 按 Control+a 然后按 Shift+i 安装 tmux 插件
-# 打开 nvim，等待 LazyVim 自动安装插件
-```
-
-### 6.5 小结
-
-```
-Docker（轻量、临时）：
-- docker run -it ubuntu bash     临时试一下
-- docker run -d ...              后台跑服务
-- docker ps / stop / rm          管理容器
-
-OrbStack Linux 机器（完整、长期）：
-- orb create ubuntu dev          创建
-- orb -m dev                     进入
-- orb list                       列出
-- /mnt/mac/...                   访问 Mac 文件
-```
-
----
-
-## 7. 第六课：SSH — 连接远程服务器
-
-### 7.1 基本概念
+### 5.1 基本概念
 
 SSH 就是"安全远程登录"。你在终端输入一条命令，就能控制远在机房的服务器。
 
-### 7.2 跟着练：生成 SSH 密钥（首次使用）
+### 5.2 跟着练：生成 SSH 密钥（首次使用）
 
 ```bash
 # 生成密钥对（一路按 Enter 用默认值就行）
@@ -618,7 +411,7 @@ cat ~/.ssh/id_ed25519.pub
 ls ~/.ssh/id_ed25519
 ```
 
-### 7.3 跟着练：添加一台服务器
+### 5.3 跟着练：添加一台服务器
 
 假设你有一台服务器：IP 是 `123.45.67.89`，用户名是 `root`。
 
@@ -652,7 +445,7 @@ Host myserver
 ssh myserver       # 不用记 IP 了，直接用别名
 ```
 
-### 7.4 在服务器上用 tmux（防止断开丢失工作）
+### 5.4 在服务器上用 tmux（防止断开丢失工作）
 
 ```bash
 # 连到服务器
@@ -672,7 +465,7 @@ ssh myserver
 tmux attach -t work    # 程序还在跑！
 ```
 
-### 7.5 小结
+### 5.5 小结
 
 ```
 一次性设置：
@@ -689,19 +482,19 @@ tmux attach -t work    # 程序还在跑！
 
 ---
 
-## 8. 第七课：在容器和服务器之间切换
+## 6. 第五课：在容器和服务器之间切换
 
 这是把前面所有工具串起来的实战课。
 
-### 8.1 场景：你有三个工作环境
+### 6.1 场景：你有三个工作环境
 
 ```
 1. Mac 本地         → 写代码
-2. OrbStack Linux   → 本地测试 Linux 环境
+2. Docker 容器      → 本地测试 Linux 环境
 3. 远程服务器        → 部署 / 跑训练
 ```
 
-### 8.2 用 tmux 窗口管理多个环境
+### 6.2 用 tmux 窗口管理多个环境
 
 核心思路：**在一个 tmux 会话里，用不同窗口连不同环境。**
 
@@ -713,11 +506,11 @@ tmux new -s work
 # 这里写代码
 nvim .
 
-# 第二步：新建窗口 2 → 连 OrbStack Linux
+# 第二步：新建窗口 2 → 进 Docker 容器
 # 按 前缀+c 新建窗口
-# 按 前缀+, 重命名为 "linux"
-orb -m dev
-# 你现在在 Linux 虚拟机里了
+# 按 前缀+, 重命名为 "docker"
+docker run -it -v "$PWD":/app ubuntu bash
+# 你现在在一个 Linux 容器里了
 
 # 第三步：新建窗口 3 → 连远程服务器
 # 按 前缀+c 新建窗口
@@ -726,19 +519,19 @@ ssh myserver
 # 你现在在远程服务器上了
 ```
 
-### 8.3 在环境之间快速切换
+### 6.3 在环境之间快速切换
 
 ```
 前缀+1         → 跳到窗口 1（Mac 本地）
-前缀+2         → 跳到窗口 2（Linux 虚拟机）
+前缀+2         → 跳到窗口 2（Docker 容器）
 前缀+3         → 跳到窗口 3（远程服务器）
 前缀+n         → 下一个窗口
 前缀+p         → 上一个窗口
 ```
 
-底部状态栏会显示所有窗口：`1:code  2:linux  3:server`，当前窗口高亮。
+底部状态栏会显示所有窗口：`1:code  2:docker  3:server`，当前窗口高亮。
 
-### 8.4 实战演练：本地写代码 → Linux 测试 → 服务器部署
+### 6.4 实战演练：本地写代码 → 容器测试 → 服务器部署
 
 ```
 步骤 1：在窗口 1 写代码
@@ -746,8 +539,8 @@ ssh myserver
   nvim app.py → 写代码 → :wq 保存
 
 步骤 2：在窗口 2 测试
-  前缀+2 → 切到 Linux
-  cd /mnt/mac/Users/mac/项目目录
+  前缀+2 → 切到 Docker 容器
+  cd /app
   python3 app.py    → 在 Linux 环境测试
   测试通过！
 
@@ -760,7 +553,7 @@ ssh myserver
 全程不用切换任何窗口/App，全在一个终端里完成。
 ```
 
-### 8.5 进阶：服务器上也用 tmux（双层 tmux）
+### 6.5 进阶：服务器上也用 tmux（双层 tmux）
 
 当你 SSH 到服务器，服务器上也有 tmux 时：
 
@@ -780,7 +573,7 @@ Control+a 再按 c    → 在 Mac 的 tmux 里新建窗口
 Control+a Control+a 再按 c  → 在服务器的 tmux 里新建窗口
 ```
 
-### 8.6 进阶：同时管理多个 Docker 容器
+### 6.6 进阶：同时管理多个 Docker 容器
 
 ```bash
 # 窗口 1：主应用
@@ -800,15 +593,15 @@ docker run -d --name redis -p 6379:6379 redis
 
 ---
 
-## 9. 第八课：把你的配置同步到 GitHub
+## 7. 第六课：把你的配置同步到 GitHub
 
-### 9.1 为什么要同步
+### 7.1 为什么要同步
 
 - 换电脑不用重新配置
 - 服务器上也能用同一套配置
 - 改坏了可以回退
 
-### 9.2 修改配置后推送
+### 7.2 修改配置后推送
 
 ```bash
 # 比如你刚改了 tmux 配置
@@ -825,7 +618,7 @@ git commit -m "update: 修改了tmux的分屏快捷键"
 git push
 ```
 
-### 9.3 在另一台机器上拉取更新
+### 7.3 在另一台机器上拉取更新
 
 ```bash
 cd ~/Dotsfile_ALL
@@ -839,9 +632,9 @@ git pull
 
 ---
 
-## 10. 第九课：在新机器上一键恢复环境
+## 8. 第七课：在新机器上一键恢复环境
 
-### 10.1 全新 Mac
+### 8.1 全新 Mac
 
 ```bash
 # 安装 Xcode 命令行工具（如果没装过）
@@ -859,7 +652,7 @@ nano ~/.shell_env    # 修改里面的值
 source ~/.shell_env
 ```
 
-### 10.2 远程 Linux 服务器（一键安装 — 推荐）
+### 8.2 远程 Linux 服务器（一键安装 — 推荐）
 
 ```bash
 # 只需要 git 能用就行（大多数服务器都有）
@@ -889,12 +682,11 @@ source ~/.shell_env
 | `fd` 命令名不同 | apt 上叫 `fd-find`，自动创建 `fd` 软链接 |
 | tmux 复制用什么？ | 自动装 `xclip`，tmux.conf 自动判断 OS 用 `xclip` 代替 `pbcopy` |
 | 状态栏电池显示 | 自动隐藏（Linux 服务器没有电池） |
-| AeroSpace / OrbStack | 自动跳过（这些是 macOS 专属） |
 | node / npm | 自动安装（markdown-preview 插件需要） |
 | `.bashrc` 配置 | 自动添加 `~/.local/bin` 到 PATH、加载 `.shell_env` |
 | FUSE 不可用 | AppImage 自动解压安装 |
 
-### 10.2b 远程 Linux 服务器（手动安装 — 备选）
+### 8.2b 远程 Linux 服务器（手动安装 — 备选）
 
 如果不想运行 install.sh，也可以手动操作：
 
@@ -931,59 +723,43 @@ nvim
 > export PATH="$HOME/.local/bin:$PATH"
 > ```
 
-### 10.3 OrbStack Linux 虚拟机
-
-```bash
-# 进入你的 Linux 机器
-orb -m dev
-
-# 因为文件共享，直接用 Mac 上的配置
-sudo apt update && sudo apt install -y git tmux neovim
-ln -sf /mnt/mac/Users/mac/Dotsfile_ALL/tmux/.tmux.conf ~/.tmux.conf
-mkdir -p ~/.config
-ln -sf /mnt/mac/Users/mac/Dotsfile_ALL/nvim ~/.config/nvim
-git clone --depth 1 https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-```
-
 ---
 
-## 11. 第十课：日常训练计划（21天养成习惯）
+## 9. 第八课：日常训练计划（19天养成习惯）
 
 ### 第 1 周：基础肌肉记忆
 
 | 天 | 目标 | 练什么 |
 |----|------|--------|
-| 1 | AeroSpace 基础 | 用 Option+h/j/k/l 切换窗口，用 Option+1-9 切桌面，全天不用鼠标切窗口 |
-| 2 | tmux 基础 | 创建会话、分屏、切换面板。试试断开再恢复 |
-| 3 | Neovim 存活 | 用 nvim 打开文件，i 编辑，Esc 回来，:wq 保存退出。反复练 10 次 |
-| 4 | Neovim 移动 | 全天用 nvim 编辑文件，只用 hjkl 移动，不用方向键 |
-| 5 | 组合练习 | tmux 分屏：左边 nvim 写代码，右边跑命令 |
-| 6 | OrbStack | 创建 Linux 机器，进去装 tmux，练分屏 |
-| 7 | 回顾 | 不看教程，凭记忆完成：开 tmux → 分屏 → nvim 编辑 → 保存退出 |
+| 1 | tmux 基础 | 创建会话、分屏、切换面板。试试断开再恢复 |
+| 2 | Neovim 存活 | 用 nvim 打开文件，i 编辑，Esc 回来，:wq 保存退出。反复练 10 次 |
+| 3 | Neovim 移动 | 全天用 nvim 编辑文件，只用 hjkl 移动，不用方向键 |
+| 4 | 组合练习 | tmux 分屏：左边 nvim 写代码，右边跑命令 |
+| 5 | 回顾 | 不看教程，凭记忆完成：开 tmux → 分屏 → nvim 编辑 → 保存退出 |
 
 ### 第 2 周：效率提升
 
 | 天 | 目标 | 练什么 |
 |----|------|--------|
-| 8 | tmux 多窗口 | 创建 3 个窗口，分别命名，用 前缀+1/2/3 切换 |
-| 9 | Neovim 搜索 | 用 空格+ff 搜文件，空格+fg 搜内容，空格+e 文件树 |
-| 10 | Neovim 编辑 | 练习 dd/yy/p 删除复制粘贴，u 撤销 |
-| 11 | SSH | 在 config 里添加一台服务器，用别名连接 |
-| 12 | 服务器 tmux | SSH 到服务器，在服务器上用 tmux |
-| 13 | Docker | 用 docker run 跑一个容器，docker ps 查看，docker stop 停止 |
-| 14 | 回顾 | 完成一个完整流程：Mac 写代码 → OrbStack 测试 → SSH 部署 |
+| 6 | tmux 多窗口 | 创建 3 个窗口，分别命名，用 前缀+1/2/3 切换 |
+| 7 | Neovim 搜索 | 用 空格+ff 搜文件，空格+fg 搜内容，空格+e 文件树 |
+| 8 | Neovim 编辑 | 练习 dd/yy/p 删除复制粘贴，u 撤销 |
+| 9 | SSH | 在 config 里添加一台服务器，用别名连接 |
+| 10 | 服务器 tmux | SSH 到服务器，在服务器上用 tmux |
+| 11 | Docker | 用 docker run 跑一个容器，docker ps 查看，docker stop 停止 |
+| 12 | 回顾 | 完成一个完整流程：Mac 写代码 → Docker 测试 → SSH 部署 |
 
 ### 第 3 周：融会贯通
 
 | 天 | 目标 | 练什么 |
 |----|------|--------|
-| 15 | 多环境切换 | tmux 里三个窗口分别连：本地、Linux VM、远程服务器 |
-| 16 | Neovim 进阶 | 练习 空格+gg 打开 lazygit，gcc 注释代码 |
-| 17 | Git 同步 | 修改一个配置 → git add/commit/push → 另一台机器 git pull |
-| 18 | Docker 项目 | 用 docker compose 跑一个多容器项目 |
-| 19 | 全流程模拟 | 模拟"新机器部署"：删除配置 → 用 install.sh 恢复 |
-| 20 | 自定义 | 改一个你想改的配置（tmux 快捷键 / nvim 插件 / AeroSpace 桌面规则） |
-| 21 | 毕业 | 不看任何文档，完成：开机 → tmux → 写代码 → 测试 → 部署 → git push |
+| 13 | 多环境切换 | tmux 里三个窗口分别连：本地、Docker 容器、远程服务器 |
+| 14 | Neovim 进阶 | 练习 空格+gg 打开 lazygit，gcc 注释代码 |
+| 15 | Git 同步 | 修改一个配置 → git add/commit/push → 另一台机器 git pull |
+| 16 | Docker 项目 | 用 docker compose 跑一个多容器项目 |
+| 17 | 全流程模拟 | 模拟"新机器部署"：删除配置 → 用 install.sh 恢复 |
+| 18 | 自定义 | 改一个你想改的配置（tmux 快捷键 / nvim 插件） |
+| 19 | 毕业 | 不看任何文档，完成：开机 → tmux → 写代码 → 测试 → 部署 → git push |
 
 ### 每天 5 分钟速练（养成后）
 
@@ -1000,13 +776,12 @@ git clone --depth 1 https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 ---
 
-## 12. 附录：遇到问题怎么办
+## 10. 附录：遇到问题怎么办
 
 ### "我按了快捷键没反应"
 
 ```
 1. 确认你在对的模式：
-   - AeroSpace 快捷键：在任何地方都能用
    - tmux 快捷键：必须在 tmux 里面
    - Neovim 快捷键：必须在 nvim 里面，且在 Normal 模式
 
@@ -1046,8 +821,8 @@ ssh -vvv 别名
 ### "Docker 命令不存在"
 
 ```bash
-# macOS：确认 OrbStack 已打开
-open -a OrbStack
+# macOS：确认 Docker Desktop 已打开
+open -a Docker
 
 # Linux：确认 Docker 已安装
 # Ubuntu: sudo apt install -y docker.io && sudo systemctl start docker

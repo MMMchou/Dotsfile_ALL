@@ -1,26 +1,27 @@
 # Dotsfile_ALL
 
-macOS + Linux + Windows(WSL) 开发环境一键配置：
-Ghostty / WezTerm + herdr（AI agent 多路复用）+ Neovim(LazyVim) + yazi + starship + lazygit/delta + 一堆命令行工具，外加 tmux / AeroSpace / OrbStack / SSH / Claude Code。
+macOS + Linux + Windows（原生 / WSL）开发环境一键配置：
+Ghostty / WezTerm + herdr（AI agent 多路复用）+ Neovim(LazyVim) + yazi + starship + lazygit/delta + 一堆命令行工具，外加 tmux / SSH / Claude Code。
 全套 Catppuccin Mocha 配色，终端里能直接预览图片 / PDF / 视频 / Mermaid / LaTeX。
 
 克隆仓库、运行脚本，即可在 Mac、Linux 或 Windows 上还原完整开发环境。
 
 ### 平台支持
 
-| 功能 | macOS | Linux | Windows (WSL) |
-|------|:-----:|:-----:|:-------------:|
-| 终端 | Ghostty | Ghostty（手动装）/ 系统终端 | WezTerm（自动装） |
-| 终端里预览图片（nvim / yazi） | ✅ | ✅ 需 Ghostty / Kitty | ⚠️ WezTerm，未实测 |
-| herdr + 插件（无缝移动 / 截图粘贴） | ✅ | ✅ | ✅ |
-| herdr 输入法记忆 / 不休眠 / 翻译 | ✅ | ❌ macOS 专属 | ❌ macOS 专属 |
-| Neovim + LazyVim（插件版本锁定） | ✅ | ✅ | ✅ |
-| yazi / starship / eza / bat / zoxide / fzf / lazygit / delta | ✅ | ✅（Homebrew on Linux） | ✅（WSL 里的 Homebrew） |
-| 代理自动检测（proxy_on / proxy_off） | ✅ | ✅ | ✅ 端口可能不同 |
-| tmux | ✅ | ✅ | ✅ |
-| AeroSpace 窗口管理 / OrbStack | ✅ | ❌ | ❌ |
-| Hack Nerd Font | ✅ 自动 | ✅ 自动 | ✅ 自动（装在 Windows） |
-| SSH 配置模板 / Claude Code | ✅ | ✅ | ✅ |
+| 功能 | macOS | Linux | Windows 原生（install.ps1） | Windows WSL（install-wsl.ps1） |
+|------|:-----:|:-----:|:-----:|:-----:|
+| 终端 | Ghostty | Ghostty（手动装）/ 系统终端 | WezTerm nightly + PowerShell 7 | WezTerm → Ubuntu |
+| herdr | ✅ | ✅ | ✅（官方原生版） | ✅ |
+| herdr 插件：无缝移动 / 截图粘贴 | ✅ | ✅ | ⚠️ 靠 Git 的 bash，未实测 | ✅ |
+| herdr 插件：输入法记忆 / 不休眠 / 翻译 | ✅ | ❌ | ❌ | ❌ |
+| Neovim + LazyVim（插件版本锁定） | ✅ | ✅ | ✅ | ✅ |
+| nvim 里直接看图片 | ✅ | ✅ 需 Ghostty / Kitty | ❌ 用 `空格 f o` 调系统程序 | ⚠️ 未实测 |
+| yazi 预览图片 | ✅ | ✅ 需 Ghostty / Kitty | ✅ WezTerm nightly / Windows Terminal 1.22+（未实测） | ⚠️ 未实测 |
+| yazi / starship / eza / bat / zoxide / fzf / lazygit / delta | ✅ | ✅ Homebrew on Linux | ✅ Scoop | ✅ Homebrew on Linux |
+| 别名 / 代理检测 / 提示符 | `.shell_tools` | `.shell_tools` | `powershell/profile.ps1` | `.shell_tools` |
+| tmux | ✅ | ✅ | ❌（用 herdr） | ✅ |
+| Hack Nerd Font | ✅ 自动 | ✅ 自动 | ✅ 自动 | ✅ 自动 |
+| 需要管理员 | 否 | sudo（装基础包） | 否 | 是（装 WSL） |
 
 > Linux 需要用**普通用户**运行（Homebrew 不支持 root）。root 下只会装 tmux / neovim / git 等基础工具。
 > 只想链接配置、不装软件：`./install.sh --no-tools`
@@ -47,24 +48,33 @@ nano ~/.shell_env
 source ~/.shell_env
 ```
 
-### Windows
-
-Windows 通过 WSL (Windows Subsystem for Linux) 运行完整的 Linux 开发环境：
+### Windows（原生，不用 WSL，推荐）
 
 ```powershell
-# 1. 以管理员身份打开 PowerShell
-
-# 2. 克隆仓库（或下载 ZIP 解压）
+# 普通 PowerShell 就行，不需要管理员
 git clone https://github.com/MMMchou/Dotsfile_ALL.git $HOME\Dotsfile_ALL
-
-# 3. 运行 PowerShell 安装脚本
 cd $HOME\Dotsfile_ALL
-.\install.ps1
+powershell -ExecutionPolicy Bypass -File .\install.ps1
 
 # 脚本会自动：
-#   - 安装 WSL2 + Ubuntu（需要重启一次）
-#   - 在 WSL 内 clone 并运行 install.sh
-#   - 配置所有开发工具
+#   - 装 Scoop（在用户目录），再装 WezTerm / PowerShell 7 / nvim / yazi / starship / lazygit … 全套
+#   - 装 herdr（官方 Windows 版）
+#   - 把配置链接到 Windows 对应位置（已有配置先备份到 ~\.dotfiles_backup）
+#   - 配置 PowerShell 配置文件（别名 / 代理检测 / 提示符）
+```
+
+安装完成后，打开 WezTerm（默认进入 PowerShell 7）→ 输入 `herdr` 开始使用。
+不开「开发者模式」也能装：目录用 Junction 链接，单个文件退回复制（脚本会列出来）。
+
+### Windows（WSL 版）
+
+想在 Ubuntu 里跑和 Linux 完全一样的一套（含 tmux）：
+
+```powershell
+# 以管理员身份打开 PowerShell（要装 WSL）
+cd $HOME\Dotsfile_ALL
+.\install-wsl.ps1
+# 安装 WSL 后需重启一次，重启后再次运行
 ```
 
 安装完成后，打开 WezTerm（默认进入 WSL Ubuntu）→ 输入 `herdr` 开始使用（tmux 也还在）。
@@ -76,7 +86,9 @@ cd $HOME\Dotsfile_ALL
 ```
 Dotsfile_ALL/
 ├── install.sh                  # 一键安装脚本（macOS / Linux）
-├── install.ps1                 # Windows 安装脚本（自动安装 WSL）
+├── install.ps1                 # Windows 安装脚本（原生，Scoop，不用 WSL）
+├── install-wsl.ps1             # Windows 安装脚本（WSL 版）
+├── powershell/profile.ps1      # PowerShell 配置（Windows 原生版的 .shell_tools）
 ├── README.md                   # 本文档
 ├── .gitignore
 ├── shell/
@@ -98,7 +110,7 @@ Dotsfile_ALL/
 │           ├── custom.lua      # 自定义插件（改这个）
 │           └── example.lua     # 官方示例（仅参考）
 ├── ghostty/config              # Ghostty 终端（macOS / Linux）
-├── wezterm/wezterm.lua         # WezTerm 终端（Windows，install.ps1 复制到 ~/.wezterm.lua）
+├── wezterm/wezterm.lua         # WezTerm 终端（Windows，链接到 ~/.wezterm.lua）
 ├── herdr/
 │   ├── config.toml             # herdr 配置（快捷键、输入法、通知、插件快捷键）
 │   └── plugins/                # 自己写的 herdr 插件（kiro-resume、translate）
@@ -107,8 +119,6 @@ Dotsfile_ALL/
 ├── lazygit/config.yml          # lazygit（catppuccin + delta）
 ├── delta/                      # git diff 配色
 ├── shell/.shell_tools          # 命令行工具别名 + 代理自动检测（全平台通用）
-├── aerospace/
-│   └── aerospace.toml          # AeroSpace 窗口管理器配置
 ├── ssh/
 │   └── config                  # SSH 连接配置模板
 └── claude/
@@ -123,8 +133,6 @@ Dotsfile_ALL/
 |------|--------|----------|
 | **tmux** | 终端复用器 | 一个终端窗口里开多个面板/窗口，断开后还能恢复 |
 | **Neovim + LazyVim** | 终端编辑器 | 轻量、快速、高度可定制的代码编辑器 |
-| **AeroSpace** | 平铺窗口管理器 | 自动排列窗口，用键盘操控一切，不用鼠标拖拽 |
-| **OrbStack** | Docker + Linux VM | 比 Docker Desktop 更快更轻，还能直接跑 Linux 虚拟机 |
 | **SSH** | 远程连接 | 连接远程服务器，配置好后一条命令直连 |
 | **Claude Code** | AI 编程助手 | 终端里的 AI 助手，帮你写代码、debug |
 
@@ -206,48 +214,6 @@ Dotsfile_ALL/
 | 上一个 Buffer | `Shift+h` |
 | 移动行 | `Control+Shift+j/k` |
 
-### AeroSpace
-
-所有快捷键用 `Option (⌥)` 键触发（Mac 键盘上 Command 旁边那个键）：
-
-| 操作 | 快捷键 |
-|------|--------|
-| 在窗口间移动焦点 | `Option + h/j/k/l` |
-| 移动窗口位置 | `Option + Shift + h/j/k/l` |
-| 切换到桌面 1-9 | `Option + 1-9` |
-| 把窗口发送到桌面 1-9 | `Option + Shift + 1-9` |
-| 打开终端 | `Option + Enter` |
-| 窗口全屏 | `Option + f` |
-| 平铺布局 | `Option + t` |
-| 堆叠布局 | `Option + s` |
-| 浮动/平铺切换 | `Option + Shift + Space` |
-| 缩小窗口 | `Option + -` |
-| 放大窗口 | `Option + =` |
-| 关闭窗口 | `Option + Shift + q` |
-| 重载配置 | `Option + Shift + r` |
-
-桌面分配建议：1=终端 / 2=浏览器 / 3=编辑器 / 4=通讯 / 5=其他
-
-### OrbStack
-
-```bash
-# Docker 相关
-docker ps                        # 查看运行中的容器
-docker run -it ubuntu bash       # 临时跑一个 Ubuntu 容器
-docker compose up -d             # 启动 docker-compose 项目
-
-# Linux 虚拟机
-orb create ubuntu dev            # 创建名为 dev 的 Ubuntu 机器
-orb                              # 进入默认机器
-orb -m dev                       # 进入 dev 机器
-orb list                         # 列出所有机器
-orb delete dev                   # 删除 dev 机器
-
-# 文件共享
-# Mac 文件在 Linux 里：/mnt/mac/Users/你的用户名/
-# Linux 文件在 Mac 里：~/OrbStack/机器名/
-```
-
 ### SSH
 
 ```bash
@@ -271,27 +237,22 @@ ssh-copy-id -i ~/.ssh/id_ed25519.pub 用户名@服务器IP
 ### 开机后的完整流程
 
 ```
-1. 开机 → AeroSpace 自动启动，窗口自动平铺
-
-2. Option+Enter 打开终端（自动到桌面1）
-   → tmux new -s work
+1. 打开 Ghostty（Windows：WezTerm）
+   → herdr（或 tmux new -s work）
 
 3. 在 tmux 中：
    → 前缀+| 左右分屏
    → 左边写代码：nvim .
    → 右边跑命令
 
-4. Option+2 切到桌面2 → 打开浏览器查文档
+4. 需要测试 Linux 环境？
+   → docker run -it ubuntu bash
 
-5. 需要测试 Linux 环境？
-   → orb -m dev  进入 Linux 机器
-   → 或者 docker run ...
-
-6. 需要连远程服务器？
+5. 需要连远程服务器？
    → ssh dev
    → 服务器上也可以用 tmux（断开后不丢失）
 
-7. 下班断开 tmux（前缀+d）
+6. 下班断开 tmux（前缀+d）
    → 第二天 tmux attach 恢复现场
 ```
 
@@ -321,22 +282,18 @@ source ~/.bashrc
 - 检测包管理器（apt / yum / dnf / pacman）
 - 安装 tmux、git、ripgrep、fd、xclip、node
 - 如果系统 Neovim 版本 < 0.9，自动用 AppImage 安装新版（x86_64）或 PPA（ARM64）
-- 跳过 macOS 专属工具（AeroSpace / OrbStack / Alacritty）
+- 跳过 macOS 专属工具（Ghostty cask / Alacritty）
 - tmux 自动适配剪贴板（macOS 用 pbcopy，Linux 用 xclip）
 - tmux 状态栏自动隐藏电池信息（Linux 服务器没有电池）
 
-### 在 Windows 上部署（通过 WSL）
+### 在 Windows 上部署
 
 ```powershell
-# 以管理员身份运行 PowerShell
 git clone https://github.com/MMMchou/Dotsfile_ALL.git $HOME\Dotsfile_ALL
 cd $HOME\Dotsfile_ALL
-.\install.ps1
-# 按提示操作，安装 WSL 后需重启一次，重启后再次运行脚本
-# 安装完成后：打开 WezTerm（默认进入 WSL Ubuntu）→ herdr
+powershell -ExecutionPolicy Bypass -File .\install.ps1      # 原生版（推荐，不要管理员）
+# 或者：.\install-wsl.ps1                                   # WSL 版（管理员，装完重启一次）
 ```
-
-建议安装 [Windows Terminal](https://aka.ms/terminal) 获得最佳体验。
 
 ### Linux 部署注意事项
 
@@ -346,7 +303,7 @@ cd $HOME\Dotsfile_ALL
 | 没有 `fd` 命令 | apt 上叫 `fd-find`，脚本自动创建 `fd` 软链接 |
 | tmux 复制不到剪贴板 | 需要 `xclip`（脚本自动安装），SSH 还需要 X11 转发 |
 | Python 路径不同 | macOS: `~/Library/Python/x.x/bin`，Linux: `~/.local/bin` |
-| 没有 GUI | AeroSpace/Alacritty 不需要，直接用 tmux + nvim |
+| 没有 GUI | 不需要 Ghostty/Alacritty，直接用 herdr 或 tmux + nvim |
 | ARM64 服务器 | Neovim 自动通过 PPA 安装 |
 | FUSE 不可用 | AppImage 自动解压安装 |
 
@@ -381,7 +338,6 @@ git clone --depth 1 https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 | Neovim 选项（缩进/行号等） | `nvim/lua/config/options.lua` |
 | Neovim 快捷键 | `nvim/lua/config/keymaps.lua` |
 | Neovim 插件 / 主题 | `nvim/lua/plugins/custom.lua` |
-| AeroSpace 快捷键 / 桌面规则 | `aerospace/aerospace.toml` |
 | SSH 服务器列表 | `ssh/config` |
 | Claude Code 模型 | `claude/settings.json` |
 
@@ -389,7 +345,6 @@ git clone --depth 1 https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 - **tmux**：在 tmux 内按 `Control+a` 然后按 `r` 重载
 - **Neovim**：重启 nvim 即可
-- **AeroSpace**：按 `Option+Shift+r` 重载
 - **Shell 环境变量**：`source ~/.shell_env`
 - **SSH**：下次连接自动生效
 
@@ -413,7 +368,6 @@ cd ~/Dotsfile_ALL
 git pull
 # tmux 中按 Control+a 然后按 r 重载
 # nvim 中按 <leader>l 检查插件更新
-# AeroSpace 按 Option+Shift+r 重载
 ```
 
 ---
@@ -444,8 +398,6 @@ A: 首次打开可能需要下载插件，等待自动安装完成。如果失�
 nvim --headless "+Lazy! sync" +qa
 ```
 
-### Q: AeroSpace 和 tmux 的快捷键冲突吗？
-A: 不冲突，因为我们刻意分开了修饰键。AeroSpace 用 **Option (⌥)** 键（窗口级别），tmux 用 **Control (⌃)** 键（终端内部）。具体分工：Option+hjkl = 切换 App 窗口（AeroSpace），Control+hjkl = 切换 tmux 面板。
 
 ### Q: 怎么切换 Catppuccin 主题风格？
 A: tmux 和 nvim 都可以独立切换：
@@ -456,7 +408,7 @@ A: tmux 和 nvim 都可以独立切换：
 A: 不会。`.gitignore` 已排除 `shell/.shell_env`。仓库里只有脱敏的 `.shell_env.example`。
 
 ### Q: 在 Linux 服务器上能用吗？
-A: 完全支持！运行 `./install.sh` 即可，脚本自动检测 OS 并安装合适的工具。tmux 和 nvim 配置通用，剪贴板和状态栏已自动适配 Linux。AeroSpace 和 OrbStack 仅限 macOS，在 Linux 上自动跳过。
+A: 完全支持！运行 `./install.sh` 即可，脚本自动检测 OS 并安装合适的工具。tmux 和 nvim 配置通用，剪贴板和状态栏已自动适配 Linux。Ghostty 在 Linux 上需要手动安装（见 install.sh 提示）。
 
 ### Q: Linux 上 tmux 复制内容怎么粘贴到本地？
 A: 需要两个条件：(1) 服务器安装 `xclip`（脚本自动装）；(2) SSH 连接时启用 X11 转发：`ssh -X 服务器`。或者在 `~/.ssh/config` 中加 `ForwardX11 yes`。
@@ -465,7 +417,14 @@ A: 需要两个条件：(1) 服务器安装 `xclip`（脚本自动装）；(2) S
 A: 支持。Neovim 无法用 AppImage（只有 x86_64），脚本会自动通过 PPA 或包管理器安装新版。
 
 ### Q: Windows 上可以用吗？
-A: 可以，通过 WSL (Windows Subsystem for Linux) 实现。运行 `.\install.ps1` 会自动安装 WSL2 + Ubuntu，然后在 WSL 内配置完整开发环境。tmux 没有 Windows 原生版本，必须通过 WSL 使用。
+A: 可以，两种方式：
+- **原生版** `install.ps1`：用 Scoop 装全套工具，WezTerm + PowerShell 7 + herdr（herdr 有官方原生 Windows 版，可以替代 tmux）。不需要管理员、不需要 WSL。
+- **WSL 版** `install-wsl.ps1`：在 WSL 的 Ubuntu 里跑和 Linux 一样的一套（含 tmux）。
+
+原生版的差别：nvim 里不能直接显示图片（Windows 终端都不支持 Kitty 图片协议），用 `空格 f o` 调系统程序打开；yazi 在 WezTerm nightly（脚本装的就是）或 Windows Terminal 1.22+ 里可以预览图片；Mac 专属的 herdr 插件没有。
+
+### Q: Windows 原生版的 API Key / 代理怎么配？
+A: Windows 没有 `~/.shell_env`，在「设置 → 系统 → 关于 → 高级系统设置 → 环境变量」的用户变量里加 `ANTHROPIC_AUTH_TOKEN` 等（名字参考 `shell/.shell_env.example`）。代理端口不是 33210 的话加 `PROXY_HTTP_PORT`。
 
 ### Q: WSL 里复制的内容能粘贴到 Windows 吗？
 A: 可以。tmux 已自动适配 WSL 环境，使用 `clip.exe` 将内容写入 Windows 剪贴板。在 tmux 复制模式中按 `y` 复制后，直接在 Windows 中 `Ctrl+V` 粘贴。
@@ -476,7 +435,5 @@ A: 可以。tmux 已自动适配 WSL 环境，使用 `clip.exe` 将内容写入 
 
 - [tmux 官方 Wiki](https://github.com/tmux/tmux/wiki)
 - [LazyVim 文档](https://www.lazyvim.org/)
-- [AeroSpace 指南](https://nikitabobko.github.io/AeroSpace/guide.html)
-- [OrbStack 文档](https://docs.orbstack.dev/)
 - [TPM 插件管理器](https://github.com/tmux-plugins/tpm)
 - [Catppuccin 主题](https://github.com/catppuccin)

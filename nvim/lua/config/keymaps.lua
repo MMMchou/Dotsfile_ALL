@@ -12,7 +12,7 @@
 -- <S-x>    表示 Shift + x
 --
 -- 按键分工（避免冲突）：
--- Option (⌥)  → AeroSpace 窗口管理（系统层，不要在这里绑）
+-- Option (⌥)  → Alt 键（mini.move 用 Option+h/j/k/l 移动选中的行/块）
 -- Control (⌃) → tmux 面板切换 / Neovim 操作
 -- Space        → LazyVim leader 键
 -- ============================================================
@@ -24,7 +24,7 @@ map("n", "<C-s>", "<cmd>w<cr>", { desc = "保存文件" })
 map("n", "<C-q>", "<cmd>qa<cr>", { desc = "退出全部" })
 
 -- ---- 移动行（Control+Shift+j/k 上下挪整行）----
--- 不用 Option+j/k，因为 AeroSpace 会拦截 Option 键
+-- （Option+j/k 已经给 mini.move 用了）
 map("n", "<C-S-j>", "<cmd>m .+1<cr>==", { desc = "当前行下移" })
 map("n", "<C-S-k>", "<cmd>m .-2<cr>==", { desc = "当前行上移" })
 map("v", "<C-S-j>", ":m '>+1<cr>gv=gv", { desc = "选中行下移" })
@@ -77,6 +77,8 @@ map("v", "p", '"_dP', { desc = "粘贴但不覆盖寄存器" })
 map("n", "<leader>fo", function()
   vim.ui.open(vim.fn.expand("%:p"))
 end, { desc = "用系统程序打开当前文件" })
-map("n", "<leader>fq", function()
-  vim.system({ "qlmanage", "-p", vim.fn.expand("%:p") }, { stdout = false, stderr = false })
-end, { desc = "macOS 快速查看当前文件" })
+if vim.fn.has("mac") == 1 then
+  map("n", "<leader>fq", function()
+    vim.system({ "qlmanage", "-p", vim.fn.expand("%:p") }, { stdout = false, stderr = false })
+  end, { desc = "macOS 快速查看当前文件" })
+end

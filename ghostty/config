@@ -11,7 +11,7 @@
 # Neovim / herdr 里可以直接显示 png/jpg/gif/pdf 等预览。
 #
 # 按键分工（和之前一样）：
-#   Option (⌥)  → AeroSpace 窗口管理
+#   Option (⌥)  → Alt 键（终端程序用）
 #   Control+a   → herdr prefix
 #   Space       → Neovim leader
 # ============================================================

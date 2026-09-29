@@ -178,7 +178,7 @@ return {
   -- 在 nvim 分屏之间移动；到了最边上再按，就跳到隔壁的 herdr pane。
   -- herdr 那边的配套插件和快捷键在 ~/.config/herdr/config.toml（插件快捷键部分）
   -- 只在 herdr 里生效（HERDR_ENV=1），单独开的 nvim 还是 LazyVim 默认的窗口切换。
-  -- 调整大小的 Option+h/j/k/l 没开：Option 键归 AeroSpace，而且 mini.move 也在用。
+  -- 调整大小的 Option+h/j/k/l 没开：mini.move 在用 Option+h/j/k/l 移动行。
   {
     "lmilojevicc/herdr-splits.nvim",
     cond = vim.env.HERDR_ENV == "1",

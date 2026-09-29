@@ -6,11 +6,10 @@
 
 # ---------- 关键设置 ----------
 # Mac 的 Option 键默认会输入特殊字符（如 ∆ ˚ ¬）
-# 改成 "Alt" 后，Option 键才能被 AeroSpace 识别为 Alt 键
-# 这是你按 Option+h/j/k/l（AeroSpace 切换窗口）没反应的根本原因！
+# 改成 "Alt" 后，Option 键才能当 Alt 键用（nvim / herdr 等终端程序的 Alt 快捷键）
 #
 # 按键分工：
-#   Option (⌥)  → AeroSpace 窗口管理（系统层）
+#   Option (⌥)  → Alt 键（终端程序用）
 #   Control(⌃)  → tmux 面板切换（终端层）
 #   Space        → Neovim leader 键
 
@@ -18,7 +17,6 @@
 # ★ 最关键的一行 ★
 # 把 Option 键从"输入特殊字符"改成"发送 Alt 信号"
 # 设为 "Both" = 左右两个 Option 键都当 Alt 用
-# 主要是让 AeroSpace 能收到 Option 键的信号
 option_as_alt = "Both"
 
 # 窗口装饰（标题栏样式）：Full / None / Transparent / Buttonless

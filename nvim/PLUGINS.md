@@ -80,7 +80,7 @@ pip install jupytext debugpy
 | `lang.markdown` | Markdown 增强 | 增强语法高亮 + 折叠 |
 | `lang.docker` | Docker 支持 | Dockerfile / docker-compose 语法高亮 + LSP 补全 |
 | `lang.yaml` | YAML 支持 | 语法高亮 + Schema 验证（k8s / GitHub Actions 配置文件） |
-| `lang.toml` | TOML 支持 | 语法高亮（编辑 aerospace.toml / alacritty.toml / pyproject.toml） |
+| `lang.toml` | TOML 支持 | 语法高亮（编辑 herdr / alacritty / pyproject.toml 等） |
 | `lang.git` | Git 编辑增强 | 编辑 git commit / rebase 时的语法高亮和补全 |
 | `lang.sql` | SQL 支持 | SQL 语法高亮 + 补全（写数据库查询时好用） |
 

@@ -12,7 +12,7 @@
 # 4. 不抢 Neovim 和 agent 的按键，一律走 prefix
 #
 # 【按键分工，延续你现有约定】
-#   Option (⌥)  → AeroSpace 窗口管理
+#   Option (⌥)  → Alt 键
 #   Control+a   → Herdr prefix（原 tmux prefix）
 #   Space       → Neovim leader
 
@@ -62,9 +62,7 @@ focus_agent = "prefix+alt+1..9"
 # pane 导航：prefix+hjkl 是默认；ctrl+alt+hjkl 是免 prefix 的直接键，
 # 对应你 tmux 的 bind -n C-h/j/k/l。
 #
-# 【要实测】你 Alacritty 设了 option_as_alt = "Both" 且 Option 归 AeroSpace，
-# ctrl+alt+* 可能被 AeroSpace 先吃掉。如果按了没反应，把每行的第二项删掉，
-# 只留 prefix+ 版本即可。
+# 免 prefix 的 Ctrl+h/j/k/l 由 herdr-splits 插件负责（见文件末尾「插件快捷键」）。
 focus_pane_left  = ["prefix+h", "ctrl+alt+h"]
 focus_pane_down  = ["prefix+j", "ctrl+alt+j"]
 focus_pane_up    = ["prefix+k", "ctrl+alt+k"]

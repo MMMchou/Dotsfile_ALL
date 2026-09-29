@@ -9,7 +9,7 @@
 #   ./install.sh
 #
 # 自动检测操作系统：
-#   macOS       → Homebrew 安装全部工具 + Ghostty / AeroSpace / OrbStack / Alacritty / Nerd Font
+#   macOS       → Homebrew 安装全部工具 + Ghostty / Alacritty / Nerd Font
 #   Linux / WSL → 系统包管理器装基础依赖，再用 Homebrew on Linux 装同一套命令行工具
 #                 （herdr / yazi / starship / eza / zoxide … apt 里没有或太旧）
 #                 root 用户不能用 Homebrew，会退回只装 tmux / neovim / git 等基础工具
@@ -97,7 +97,7 @@ install_tools_macos() {
     fi
 
     local formulae=("${COMMON_FORMULAE[@]}" terminal-notifier pngpaste)
-    local casks=(ghostty orbstack alacritty font-hack-nerd-font)
+    local casks=(ghostty alacritty font-hack-nerd-font)
 
     brew_install_list "${formulae[@]}"
 
@@ -109,13 +109,6 @@ install_tools_macos() {
             HOMEBREW_NO_AUTO_UPDATE=1 brew install --cask "$pkg" || warn "$pkg 安装失败（如果已从官网装过可忽略）"
         fi
     done
-
-    if brew list --cask aerospace &>/dev/null; then
-        info "aerospace 已安装，跳过"
-    else
-        info "安装 AeroSpace..."
-        HOMEBREW_NO_AUTO_UPDATE=1 brew install --cask nikitabobko/tap/aerospace
-    fi
 
     install_npm_tools
 }
@@ -341,7 +334,6 @@ backup_existing() {
             "$HOME/.bash_profile"
             "$HOME/.bashrc"
             "$HOME/.zshrc"
-            "$HOME/.config/aerospace/aerospace.toml"
             "$HOME/.config/alacritty/alacritty.toml"
             "$HOME/.claude/settings.json"
         )
@@ -428,10 +420,6 @@ create_symlinks() {
         # alacritty
         mkdir -p "$HOME/.config/alacritty"
         [[ -f "$DOTFILES_DIR/alacritty/alacritty.toml" ]] && ln -sf "$DOTFILES_DIR/alacritty/alacritty.toml" "$HOME/.config/alacritty/alacritty.toml"
-
-        # aerospace
-        mkdir -p "$HOME/.config/aerospace"
-        [[ -f "$DOTFILES_DIR/aerospace/aerospace.toml" ]] && ln -sf "$DOTFILES_DIR/aerospace/aerospace.toml" "$HOME/.config/aerospace/aerospace.toml"
 
     fi
 
@@ -630,9 +618,8 @@ main() {
         echo "  1. 编辑 ~/.shell_env 填入你的 API Key（如果还没填）"
         echo "  2. source ~/.shell_env"
         echo "  3. 打开 Ghostty，输入 herdr 开始使用（图片预览只在 Ghostty 里有）"
-        echo "  4. 打开 AeroSpace / OrbStack App 完成初始化"
-        echo "  5. 打开 nvim 等待插件自动加载"
-        echo "  6. 第一次截图/通知时，按系统提示给权限"
+        echo "  4. 打开 nvim 等待插件自动加载"
+        echo "  5. 第一次截图/通知时，按系统提示给权限"
     else
         if [[ "$IS_WSL" == true ]]; then
             info "后续操作（WSL）："
@@ -652,7 +639,7 @@ main() {
         fi
         echo ""
         echo "  用法：在终端输入 herdr 开始（或继续用 tmux）"
-        echo "  注意：AeroSpace / OrbStack / 输入法记忆 / 不休眠 / 翻译插件是 macOS 专属"
+        echo "  注意：输入法记忆 / 不休眠 / 翻译插件是 macOS 专属"
         echo "  图片预览需要终端支持 Kitty 图片协议：Linux 用 Ghostty / Kitty；Windows 用 WezTerm"
     fi
 
